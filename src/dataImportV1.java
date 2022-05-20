@@ -409,7 +409,7 @@ public class dataImportV1 {
         }
     }
 
-    //返回现有的库存数量
+    //返回现有的tot库存数量
     public int getStock(int modelId, int sustcId) {
 
         int ans = 0;
@@ -494,9 +494,10 @@ public class dataImportV1 {
                     clientId = getContractInfo(conId);
                     clientInfo = getClientInfoById(clientId);
                     sustcId = Integer.parseInt(clientInfo[1]);
-                    //更新后的数量是0即删除，是检查quantity就行吧？
+                    //更新后的数量是0即删除，检查quantity
                     if (quantity == 0) {
                         deleteOneOrder(conId, modelId, salesmanId);
+                        returnUpdateStock(modelId,sustcId,quantity,conId,salesmanId);
                     } else if (checkStock(sustcId, modelId, quantity)) {
                         //然后检查是否会超出库存上限
                         //update stock
@@ -509,6 +510,7 @@ public class dataImportV1 {
                         updateOrder.setInt(5, modelId);
                         updateOrder.setInt(6, salesmanId);
                         updateOrder.execute();
+                        returnUpdateStock(modelId,sustcId,quantity,conId,salesmanId);
                     }
                 }
 
@@ -518,7 +520,24 @@ public class dataImportV1 {
             e.printStackTrace();
         }
     }
+    public int getOrderQuantity(String conId, int modelId, int salesId) {
 
+        int ans = 0;
+        String sql = "select * from orders where model_id=? and salesman_id=? and contract_id=?";
+        try {
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setInt(1, modelId);
+            stmt.setInt(2, salesId);
+            stmt.setString(3,conId);
+            ResultSet result = stmt.executeQuery();
+            if (result.next()) {
+                ans = Integer.parseInt(result.getString("quantity"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ans;
+    }
     public void deleteOneOrder(String conId, int modelId, int salesId) {
 
         String sql = "delete from orders where contract_id=? and model_id=? and salesman_id=?";
@@ -526,8 +545,8 @@ public class dataImportV1 {
             PreparedStatement preparedStatement = con.prepareStatement(sql);
             preparedStatement.setString(1, conId);
             preparedStatement.setInt(2, modelId);
+
             preparedStatement.setInt(3, salesId);
-            preparedStatement.execute();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -587,7 +606,7 @@ public class dataImportV1 {
                     clientInfo = getClientInfoById(clientId);
                     sustcId = Integer.parseInt(clientInfo[1]);
                     deleteOneOrder(conId, modelId, salesId);
-                    returnStock(modelId, sustcId, quantity);
+                    returnDeleteStock(modelId, sustcId, quantity);
                 }
 
             }
@@ -596,7 +615,7 @@ public class dataImportV1 {
         }
     }
 
-    public void returnStock(int modelId, int sustcId, int quantity) {
+    public void returnDeleteStock(int modelId, int sustcId, int quantity) {
 
         String sql = "update stock set tot_quantity=? where model_id=? and sustc_id=?";
         int now;
@@ -612,6 +631,26 @@ public class dataImportV1 {
             e.printStackTrace();
         }
     }
+    public void returnUpdateStock(int modelId, int sustcId, int quantity,String conId,int salesId) {
+
+        String sql = "update stock set tot_quantity=? where model_id=? and sustc_id=?";
+        int now;
+        //update前的
+        int stockQuantity = getStock(modelId,sustcId);
+        int orderQuantity = getOrderQuantity(conId,modelId,salesId);
+        //quantity是update后的
+        now = stockQuantity +(orderQuantity-quantity);
+        try {
+            PreparedStatement preparedStatement = con.prepareStatement(sql);
+            preparedStatement.setInt(1, now);
+            preparedStatement.setInt(2, modelId);
+            preparedStatement.setInt(3, sustcId);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public int[] getSeqModel(int salesId, String conId, int seq) {
 
