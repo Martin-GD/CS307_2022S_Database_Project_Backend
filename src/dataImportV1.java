@@ -544,8 +544,8 @@ public class dataImportV1 {
             PreparedStatement preparedStatement = con.prepareStatement(sql);
             preparedStatement.setString(1, conId);
             preparedStatement.setInt(2, modelId);
-
             preparedStatement.setInt(3, salesId);
+            preparedStatement.execute();
         } catch (SQLException e) {
             e.printStackTrace();
         }

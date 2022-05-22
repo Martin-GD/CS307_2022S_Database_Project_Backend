@@ -111,7 +111,7 @@ public class check {
             resultSet = NeverSoldProductCount.executeQuery();
 
             while (resultSet.next()) {
-                sb.append(String.format("%-5s", resultSet.getString("number"))).append("\n");
+                sb.append(String.format("%-5s", resultSet.getString("count"))).append("\n");
             }
         } catch (SQLException e) {
             e.printStackTrace();

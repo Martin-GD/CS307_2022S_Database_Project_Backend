@@ -6,10 +6,10 @@ public class Main {
         check dm = new check();
         dataImportV1 imp = new dataImportV1();
         imp.getConnection();
-//        imp.impCenter();
-//        imp.impEnterprise();
-//        imp.impModel();
-//        imp.impStaff();
+        imp.impCenter();
+        imp.impEnterprise();
+        imp.impModel();
+        imp.impStaff();
         imp.setStockIn();
         imp.placeOrder();
         imp.updateOrder();
