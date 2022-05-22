@@ -341,9 +341,9 @@ public class dataImportV1 {
             PreparedStatement contract = con.prepareStatement(contractSql);
 
             try (BufferedReader infile
-                         = new BufferedReader(new FileReader("task2.csv"))) {
+                         = new BufferedReader(new FileReader("task2_test_data_final_public.tsv"))) {
                 while ((line = infile.readLine()) != null) {
-                    orderInfo = line.split(",");
+                    orderInfo = line.split("\t");
                     if (!orderInfo[0].equals("contract_num")) {
                         conId = orderInfo[0];
                         cName = orderInfo[1];
