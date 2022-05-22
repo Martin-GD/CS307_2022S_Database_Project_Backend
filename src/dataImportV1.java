@@ -1,4 +1,3 @@
-package project2;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -174,7 +173,7 @@ public class dataImportV1 {
         boolean checkSupCenter;
         String[] staffInfo;
         try (PreparedStatement stockIn = con.prepareStatement(sql);) {
-            CsvReader infile = new CsvReader("instock.csv", ',', Charset.forName("UTF-8"));
+            CsvReader infile = new CsvReader("in_stock_test.csv", ',', Charset.forName("UTF-8"));
             infile.readHeaders();
             while (infile.readRecord()) {
                 stockInfo = infile.getValues();
@@ -342,7 +341,7 @@ public class dataImportV1 {
             PreparedStatement contract = con.prepareStatement(contractSql);
 
             try (BufferedReader infile
-                         = new BufferedReader(new FileReader("place_test.csv"))) {
+                         = new BufferedReader(new FileReader("task2.csv"))) {
                 while ((line = infile.readLine()) != null) {
                     orderInfo = line.split(",");
                     if (!orderInfo[0].equals("contract_num")) {
@@ -478,7 +477,7 @@ public class dataImportV1 {
         String[] clientInfo;
         Date delDate, lodDate;
         try (PreparedStatement updateOrder = con.prepareStatement(sql); BufferedReader infile
-                = new BufferedReader(new FileReader("update_test.tsv"))) {
+                = new BufferedReader(new FileReader("update_final_test.tsv"))) {
             while ((line = infile.readLine()) != null) {
                 updateInfo = line.split("\t");
                 conId = updateInfo[0];
@@ -583,13 +582,13 @@ public class dataImportV1 {
         int[] stockInfo;
 
         try (BufferedReader infile
-                     = new BufferedReader(new FileReader("delete_test.tsv"))) {
+                     = new BufferedReader(new FileReader("delete_final.tsv"))) {
             while ((line = infile.readLine()) != null) {
                 testInfo = line.split("\t");
                 if (testInfo[0].equals("contract")) {
                     continue;
                 }
-                //227 103
+
                 conId = testInfo[0];
                 salesId = Integer.parseInt(testInfo[1]);
                 seq = Integer.parseInt(testInfo[2]);
