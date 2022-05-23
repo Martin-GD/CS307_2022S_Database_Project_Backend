@@ -5,16 +5,17 @@ public class Main {
     public static void main(String[] args) throws SQLException {
         check dm = new check();
         dataImportV1 imp = new dataImportV1();
-//        imp.getConnection();
+        imp.getConnection();
 //        imp.impCenter();
 //        imp.impEnterprise();
 //        imp.impModel();
 //        imp.impStaff();
-//        imp.setStockIn();
-//        imp.placeOrder();
-//        imp.updateOrder();
-//        imp.deleteOrder();
-//        imp.closeConnection();
+
+        imp.setStockIn();
+        imp.placeOrder();
+        imp.updateOrder();
+        imp.deleteOrder();
+        imp.closeConnection();
         dm.openDB();
         System.out.println(dm.getAllStaffCount());
         System.out.println(dm.getContractCount());

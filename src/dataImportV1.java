@@ -327,6 +327,9 @@ public class dataImportV1 {
         String orderSql = "insert into orders(contract_id,model_id,quantity" +
                 ",tot_income,salesman_id,delivery_date,lodgement_date,contract_type)" +
                 "values(?,?,?,?,?,?,?,?)on conflict do nothing";
+//        String orderSql = "insert into orders(contract_id,model_id,quantity" +
+//                ",salesman_id,delivery_date,lodgement_date,contract_type)" +
+//                "values(?,?,?,?,?,?,?)on conflict do nothing";
         String contractSql = "insert into contract(contract_id,date,client_id,manager_id)" +
                 "values(?,?,?,?)on conflict do nothing";
         String billSql = "insert into bills(sustc_id,contract_id,contract_expense,contract_income," +
@@ -385,6 +388,7 @@ public class dataImportV1 {
 
                             updateStock(modelId, quantity, sustcId);
                             contract.execute();
+                            order.execute();
                             //已经插入过则是true then update
 //                            if (checkBill(conId)) {
 //                                purchasePrice = getPurchasePrice(sustcId, modelId, );
@@ -417,7 +421,8 @@ public class dataImportV1 {
             e.printStackTrace();
         }
     }
-//
+
+    //
 //    public int getPurchasePrice(int sustcId, int modelId, int staffId) {
 //        String checkBill = "select purchase_price from stock where sustc_id=?,model_id=?,supply_staff_id=?";
 //        int ans = 0;
@@ -545,12 +550,12 @@ public class dataImportV1 {
 
     public void updateOrder() throws SQLException {
 
-        String sql = "update orders set quantity=?,delivery_date=?,lodgement_date=? " +
+        String sql = "update orders set quantity=?,delivery_date=?,lodgement_date=?,tot_income=?" +
                 "where contract_id=? and model_id=? and salesman_id=?";
         String line;
         String[] updateInfo;
         String conId, productModel;
-        int salesmanId, quantity, modelId, clientId, sustcId;
+        int salesmanId, quantity, modelId, clientId, sustcId, income;
         String[] clientInfo;
         Date delDate, lodDate;
         try (PreparedStatement updateOrder = con.prepareStatement(sql); BufferedReader infile
@@ -570,6 +575,7 @@ public class dataImportV1 {
                     clientId = getContractInfo(conId);
                     clientInfo = getClientInfoById(clientId);
                     sustcId = Integer.parseInt(clientInfo[1]);
+                    income = quantity * getUnitPrice(modelId);
                     //更新后的数量是0即删除，检查quantity
                     if (quantity == 0) {
                         deleteOneOrder(conId, modelId, salesmanId);
@@ -582,9 +588,11 @@ public class dataImportV1 {
                         updateOrder.setInt(1, quantity);
                         updateOrder.setDate(2, delDate);
                         updateOrder.setDate(3, lodDate);
-                        updateOrder.setString(4, conId);
-                        updateOrder.setInt(5, modelId);
-                        updateOrder.setInt(6, salesmanId);
+                        updateOrder.setInt(4, income);
+                        updateOrder.setString(5, conId);
+
+                        updateOrder.setInt(6, modelId);
+                        updateOrder.setInt(7, salesmanId);
                         updateOrder.execute();
                         returnUpdateStock(modelId, sustcId, quantity, conId, salesmanId);
                     }
