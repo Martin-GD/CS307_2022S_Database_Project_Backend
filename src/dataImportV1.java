@@ -325,20 +325,26 @@ public class dataImportV1 {
     public void placeOrder() throws SQLException {
 
         String orderSql = "insert into orders(contract_id,model_id,quantity" +
-                ",salesman_id,delivery_date,lodgement_date,contract_type)" +
-                "values(?,?,?,?,?,?,?)on conflict do nothing";
+                ",tot_income,salesman_id,delivery_date,lodgement_date,contract_type)" +
+                "values(?,?,?,?,?,?,?,?)on conflict do nothing";
         String contractSql = "insert into contract(contract_id,date,client_id,manager_id)" +
                 "values(?,?,?,?)on conflict do nothing";
+        String billSql = "insert into bills(sustc_id,contract_id,contract_expense,contract_income," +
+                "profit) values(?,?,?,?,?) on conflict do nothing";
+        String updateBillSql = "update bills set contract_expense=? , contract_income=?, profit=? where contract_id=? ";
+
 
         String line;
         String[] orderInfo, staffInfo;
         int[] clientInfo;
         String cName, productModel, conType, conId;
-        int quantity, salesId, modelId, clientId, conManager, sustcId;
+        int quantity, salesId, modelId, clientId, conManager, sustcId, income, num, conExpense, conIncome, conProfit, purchasePrice;
         Date conDate, lodgementDate, delDate;
         try {
             PreparedStatement order = con.prepareStatement(orderSql);
             PreparedStatement contract = con.prepareStatement(contractSql);
+            PreparedStatement billInsert = con.prepareStatement(billSql);
+            PreparedStatement billUpdate = con.prepareStatement(updateBillSql);
 
             try (BufferedReader infile
                          = new BufferedReader(new FileReader("task2_test_data_final_public.tsv"))) {
@@ -360,6 +366,8 @@ public class dataImportV1 {
                         clientInfo = getClientInfoByName(cName);
                         clientId = clientInfo[0];
                         sustcId = clientInfo[1];
+                        num = getUnitPrice(modelId);
+                        income = quantity * num;
                         if (staffInfo[1].equals("Salesman") && checkStock(sustcId, modelId, quantity)) {
 
                             contract.setString(1, conId);
@@ -369,13 +377,33 @@ public class dataImportV1 {
                             order.setString(1, conId);
                             order.setInt(2, modelId);
                             order.setInt(3, quantity);
-                            order.setInt(4, salesId);
-                            order.setDate(5, delDate);
-                            order.setDate(6, lodgementDate);
-                            order.setString(7, conType);
+                            order.setInt(4, income);
+                            order.setInt(5, salesId);
+                            order.setDate(6, delDate);
+                            order.setDate(7, lodgementDate);
+                            order.setString(8, conType);
+
                             updateStock(modelId, quantity, sustcId);
                             contract.execute();
-                            order.execute();
+                            //已经插入过则是true then update
+//                            if (checkBill(conId)) {
+//                                purchasePrice = getPurchasePrice(sustcId, modelId, );
+//                                conExpense = quantity * purchasePrice;
+//                                num = getUnitPrice(modelId);
+//                                income = quantity * num;
+//                                billUpdate.setInt(1, );
+//                                billUpdate.setInt(2, );
+//                                billUpdate.setInt(3, );
+//                                billUpdate.setString(4, conId);
+//                                billUpdate.execute();
+//                            }else{
+//                                billInsert.setInt(1,sustcId);
+//                                billInsert.setString(2,conId);
+//                                billInsert.setInt(3,);
+//                                billInsert.setInt(4,);
+//                                billInsert.setInt(5,);
+//                                billInsert.execute();
+//                            }
                         }
 
                     }
@@ -389,7 +417,56 @@ public class dataImportV1 {
             e.printStackTrace();
         }
     }
-
+//
+//    public int getPurchasePrice(int sustcId, int modelId, int staffId) {
+//        String checkBill = "select purchase_price from stock where sustc_id=?,model_id=?,supply_staff_id=?";
+//        int ans = 0;
+//        try {
+//            PreparedStatement preparedStatement = con.prepareStatement(checkBill);
+//            preparedStatement.setInt(1, sustcId);
+//            preparedStatement.setInt(2, modelId);
+//            preparedStatement.setInt(3, staffId);
+//            ResultSet resultSet = preparedStatement.executeQuery();
+//            if (resultSet.next()) {
+//                ans = Integer.parseInt(resultSet.getString("purchase_price"));
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        return ans;
+//    }
+//
+//    public boolean checkBill(String conId) {
+//        String checkBill = "select * from bills where contract_id=?";
+//        boolean ans = false;
+//        try {
+//            PreparedStatement preparedStatement = con.prepareStatement(checkBill);
+//            preparedStatement.setString(1, conId);
+//            ResultSet resultSet = preparedStatement.executeQuery();
+//            if (resultSet.next()) {
+//                ans = true;
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        return ans;
+//    }
+//
+    public int getUnitPrice(int modelId) {
+        String sql = "select price from product where model_id=?";
+        int ans = 0;
+        try {
+            PreparedStatement preparedStatement = con.prepareStatement(sql);
+            preparedStatement.setInt(1, modelId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                ans = Integer.parseInt(resultSet.getString("price"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ans;
+    }
 
     public void updateStock(int modelId, int quantity, int sustcId) {
 
@@ -496,7 +573,7 @@ public class dataImportV1 {
                     //更新后的数量是0即删除，检查quantity
                     if (quantity == 0) {
                         deleteOneOrder(conId, modelId, salesmanId);
-                        returnUpdateStock(modelId,sustcId,quantity,conId,salesmanId);
+                        returnUpdateStock(modelId, sustcId, quantity, conId, salesmanId);
                     } else if (checkStock(sustcId, modelId, quantity)) {
                         //然后检查是否会超出库存上限
                         //update stock
@@ -509,7 +586,7 @@ public class dataImportV1 {
                         updateOrder.setInt(5, modelId);
                         updateOrder.setInt(6, salesmanId);
                         updateOrder.execute();
-                        returnUpdateStock(modelId,sustcId,quantity,conId,salesmanId);
+                        returnUpdateStock(modelId, sustcId, quantity, conId, salesmanId);
                     }
                 }
 
@@ -519,6 +596,7 @@ public class dataImportV1 {
             e.printStackTrace();
         }
     }
+
     public int getOrderQuantity(String conId, int modelId, int salesId) {
 
         int ans = 0;
@@ -527,7 +605,7 @@ public class dataImportV1 {
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setInt(1, modelId);
             stmt.setInt(2, salesId);
-            stmt.setString(3,conId);
+            stmt.setString(3, conId);
             ResultSet result = stmt.executeQuery();
             if (result.next()) {
                 ans = Integer.parseInt(result.getString("quantity"));
@@ -537,6 +615,7 @@ public class dataImportV1 {
         }
         return ans;
     }
+
     public void deleteOneOrder(String conId, int modelId, int salesId) {
 
         String sql = "delete from orders where contract_id=? and model_id=? and salesman_id=?";
@@ -562,8 +641,8 @@ public class dataImportV1 {
             preparedStatement.setInt(2, salesId);
             preparedStatement.setInt(3, modelId);
             ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()){
-                ans=true;
+            if (resultSet.next()) {
+                ans = true;
             }
 
         } catch (SQLException e) {
@@ -595,7 +674,7 @@ public class dataImportV1 {
                 stockInfo = getSeqModel(salesId, conId, seq);
                 modelId = stockInfo[0];
                 quantity = stockInfo[1];
-                if (modelId==0){
+                if (modelId == 0) {
                     continue;
                 }
                 if (checkSaleOrder(conId, salesId, modelId)) {
@@ -630,15 +709,16 @@ public class dataImportV1 {
             e.printStackTrace();
         }
     }
-    public void returnUpdateStock(int modelId, int sustcId, int quantity,String conId,int salesId) {
+
+    public void returnUpdateStock(int modelId, int sustcId, int quantity, String conId, int salesId) {
 
         String sql = "update stock set tot_quantity=? where model_id=? and sustc_id=?";
         int now;
         //update前的
-        int stockQuantity = getStock(modelId,sustcId);
-        int orderQuantity = getOrderQuantity(conId,modelId,salesId);
+        int stockQuantity = getStock(modelId, sustcId);
+        int orderQuantity = getOrderQuantity(conId, modelId, salesId);
         //quantity是update后的
-        now = stockQuantity +(orderQuantity-quantity);
+        now = stockQuantity + (orderQuantity - quantity);
         try {
             PreparedStatement preparedStatement = con.prepareStatement(sql);
             preparedStatement.setInt(1, now);

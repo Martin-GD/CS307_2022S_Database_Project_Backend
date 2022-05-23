@@ -5,16 +5,16 @@ public class Main {
     public static void main(String[] args) throws SQLException {
         check dm = new check();
         dataImportV1 imp = new dataImportV1();
-        imp.getConnection();
-        imp.impCenter();
-        imp.impEnterprise();
-        imp.impModel();
-        imp.impStaff();
-        imp.setStockIn();
-        imp.placeOrder();
-        imp.updateOrder();
-        imp.deleteOrder();
-        imp.closeConnection();
+//        imp.getConnection();
+//        imp.impCenter();
+//        imp.impEnterprise();
+//        imp.impModel();
+//        imp.impStaff();
+//        imp.setStockIn();
+//        imp.placeOrder();
+//        imp.updateOrder();
+//        imp.deleteOrder();
+//        imp.closeConnection();
         dm.openDB();
         System.out.println(dm.getAllStaffCount());
         System.out.println(dm.getContractCount());
@@ -23,6 +23,7 @@ public class Main {
         System.out.println(dm.getFavoriteProductModel());
         System.out.println(dm.getAvgStockByCenter());
 //        System.out.println(dm.getProductByNumber());
+
         dm.closeDB();
     }
 }

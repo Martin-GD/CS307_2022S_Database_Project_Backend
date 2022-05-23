@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/CS307_Proj.iml" filepath="$PROJECT_DIR$/CS307_Proj.iml" />
       <module fileurl="file://$PROJECT_DIR$/cs307/cs307.iml" filepath="$PROJECT_DIR$/cs307/cs307.iml" />
+      <module fileurl="file://$PROJECT_DIR$/vue_proj2.iml" filepath="$PROJECT_DIR$/vue_proj2.iml" />
     </modules>
   </component>
 </project>
