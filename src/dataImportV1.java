@@ -509,6 +509,25 @@ public class dataImportV1 {
         return ans;
     }
 
+    public boolean checkUpdateStock(int sustcId, int modelId, int quantity) {
+
+        String sql = "select * from stock where model_id=? and sustc_id=?";
+        boolean ans = false;
+        int before = getStock(modelId, sustcId);
+        try {
+            PreparedStatement preparedStatement = con.prepareStatement(sql);
+            preparedStatement.setInt(1, modelId);
+            preparedStatement.setInt(2, sustcId);
+            ResultSet result = preparedStatement.executeQuery();
+            if (result.next()) {
+                int totQuantity = Integer.parseInt(result.getString("stock_quantity"));
+                ans = before >= (quantity - totQuantity);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ans;
+    }
     public boolean checkStock(int sustcId, int modelId, int quantity) {
 
         String sql = "select * from stock where model_id=? and sustc_id=?";
@@ -520,7 +539,7 @@ public class dataImportV1 {
             ResultSet result = preparedStatement.executeQuery();
             if (result.next()) {
                 int totQuantity = Integer.parseInt(result.getString("tot_quantity"));
-                ans = totQuantity >= quantity;
+                ans = totQuantity >= (quantity);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -580,7 +599,7 @@ public class dataImportV1 {
                     if (quantity == 0) {
                         deleteOneOrder(conId, modelId, salesmanId);
                         returnUpdateStock(modelId, sustcId, quantity, conId, salesmanId);
-                    } else if (checkStock(sustcId, modelId, quantity)) {
+                    } else if (checkUpdateStock(sustcId, modelId, quantity)) {
                         //然后检查是否会超出库存上限
                         //update stock
                         //judge if number=0 and needed to be removed
@@ -744,8 +763,8 @@ public class dataImportV1 {
     public int[] getSeqModel(int salesId, String conId, int seq) {
 
         String sql = "select * ,  rank() over (partition by salesman_id order by delivery_date) " +
-                "from orders where salesman_id=? and contract_id=? " +
-                "limit 1 offset ?";
+                "from orders  join product p on orders.model_id = p.model_id where salesman_id=? and contract_id=? " +
+                "order by p_name limit 1 offset ?";
         int offset = seq - 1;
         int[] ans = new int[2];
         try {
