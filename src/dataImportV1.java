@@ -593,8 +593,9 @@ public class dataImportV1 {
 
                         updateOrder.setInt(6, modelId);
                         updateOrder.setInt(7, salesmanId);
-                        updateOrder.execute();
+
                         returnUpdateStock(modelId, sustcId, quantity, conId, salesmanId);
+                        updateOrder.execute();
                     }
                 }
 
@@ -691,8 +692,9 @@ public class dataImportV1 {
                     clientId = getContractInfo(conId);
                     clientInfo = getClientInfoById(clientId);
                     sustcId = Integer.parseInt(clientInfo[1]);
-                    deleteOneOrder(conId, modelId, salesId);
+
                     returnDeleteStock(modelId, sustcId, quantity);
+                    deleteOneOrder(conId, modelId, salesId);
                 }
 
             }

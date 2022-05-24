@@ -140,9 +140,14 @@ public class check {
     public String getAvgStockByCenter() {
         StringBuilder sb = new StringBuilder();
         try {
-            AvgStockByCenter = con.prepareStatement("select supply_center, average from (select sustc_id, model_id, round(avg(stock_quantity), 1) as average "
-                    + "from stock group by sustc_id, model_id) m1 left join sustc on m1.sustc_id = sustc.sustc_id "
-                    + "where model_id = 1 order by supply_center");
+            AvgStockByCenter = con.prepareStatement("select m2.supply_center, text(round(avg(sum / 1.0), 1)) as average " +
+                    "                   from (select * " +
+                    "                         from (select sustc_id, model_id, avg(tot_quantity) as sum" +
+                    "                                from stock  "+
+                    "                                group by sustc_id, model_id) m1"+
+                    "                                   left join sustc on m1.sustc_id = sustc.sustc_id) m2  "+
+                    "                    group by m2.supply_center  "+
+                    "                    order by supply_center");
             resultSet = AvgStockByCenter.executeQuery();
 //            sb.append(String.format("%-50s  %-5s", "supply_center", " average")).append("\n");
             while (resultSet.next()) {

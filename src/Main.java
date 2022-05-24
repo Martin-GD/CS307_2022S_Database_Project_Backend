@@ -11,9 +11,9 @@ public class Main {
 //        imp.impModel();
 //        imp.impStaff();
 
-        imp.setStockIn();
-        imp.placeOrder();
-        imp.updateOrder();
+//        imp.setStockIn();
+//        imp.placeOrder();
+//        imp.updateOrder();
         imp.deleteOrder();
         imp.closeConnection();
         dm.openDB();
