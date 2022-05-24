@@ -14,6 +14,9 @@ public class check {
     private static PreparedStatement ContractInfo = null;
     private static PreparedStatement OrderInfo = null;
 
+    private static PreparedStatement MonthBill = null;
+
+
     private String host = "localhost";
     private String dbname = "project2";
     private String user = "test";
@@ -143,10 +146,10 @@ public class check {
             AvgStockByCenter = con.prepareStatement("select m2.supply_center, text(round(avg(sum / 1.0), 1)) as average " +
                     "                   from (select * " +
                     "                         from (select sustc_id, model_id, avg(tot_quantity) as sum" +
-                    "                                from stock  "+
-                    "                                group by sustc_id, model_id) m1"+
-                    "                                   left join sustc on m1.sustc_id = sustc.sustc_id) m2  "+
-                    "                    group by m2.supply_center  "+
+                    "                                from stock  " +
+                    "                                group by sustc_id, model_id) m1" +
+                    "                                   left join sustc on m1.sustc_id = sustc.sustc_id) m2  " +
+                    "                    group by m2.supply_center  " +
                     "                    order by supply_center");
             resultSet = AvgStockByCenter.executeQuery();
 //            sb.append(String.format("%-50s  %-5s", "supply_center", " average")).append("\n");
@@ -169,10 +172,10 @@ public class check {
                     "    left join (select model_id m1_id, code, model_name from product) m1 on m1_id = stock.model_id " +
                     "    left join sustc s on stock.sustc_id = s.sustc_id) m2 " +
                     "where code = ? ");
-            ProductByNumber.setString(1,product_number);
+            ProductByNumber.setString(1, product_number);
             resultSet = ProductByNumber.executeQuery();
             sb.append(String.format("%-50s  %-20s  %-50s  %-15s  %-15s", "supply_center",
-                    "product_name","model_name","purchase_prise","quantity")).append("\n");
+                    "product_name", "model_name", "purchase_prise", "quantity")).append("\n");
             while (resultSet.next()) {
                 sb.append(String.format("%-50s  %-20s  %-50s  %-15s  %-15s", resultSet.getString("supply_center"),
                         resultSet.getString("product_name"),
@@ -192,9 +195,9 @@ public class check {
             ContractInfo = con.prepareStatement("select contract_id,staff_name,c_name,supply_center from contract " +
                     "left join (select c_name, client_id as c_id , sustc_id from client) c on c_id = contract.client_id " +
                     "left join (select staff_id s_id, staff_name from staff) s on contract.manager_id = s_id " +
-                    "left join (select sustc_id as s2_id ,supply_center from sustc) s2 on s2_id = sustc_id "+
+                    "left join (select sustc_id as s2_id ,supply_center from sustc) s2 on s2_id = sustc_id " +
                     "where contract_id = ?");
-            ContractInfo.setString(1,contract_number);
+            ContractInfo.setString(1, contract_number);
             resultSet = ContractInfo.executeQuery();
             sb.append("number: ").append(resultSet.getString("contract_id")).append("\n");
             sb.append("manager: ").append(resultSet.getString("staff_name")).append("\n");
@@ -205,14 +208,14 @@ public class check {
                     "left join (select model_id p_id, model_name, price from product)p on orders.model_id = p_id " +
                     "left join (select staff_id s_id, staff_name from staff)s on salesman_id = s_id " +
                     "where contract_id = ?");
-            OrderInfo.setString(1,contract_number);
+            OrderInfo.setString(1, contract_number);
             resultSet = OrderInfo.executeQuery();
 
             int a = 0;
             while (resultSet.next()) {
-                if (a==0){
+                if (a == 0) {
                     sb.append(String.format("%-50s  %-30s  %-10s  %-15s  %-25s  %-20s",
-                            "product_model", "salesman","quantity","unit_price","estimate_delivery_date","lodgement_date")).append("\n");
+                            "product_model", "salesman", "quantity", "unit_price", "estimate_delivery_date", "lodgement_date")).append("\n");
                     a++;
                 }
                 sb.append(String.format("%-50s  %-30s  %-10s  %-15s  %-25s  %-20s",
@@ -223,6 +226,29 @@ public class check {
                         resultSet.getString("delivery_date"),
                         resultSet.getString("lodgement_date"))).append("\n");
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return sb.toString();
+    }
+
+    //get info for a month
+    public String getMonthlyAll(int month) {
+        StringBuilder sb = new StringBuilder();
+        try {
+            MonthBill = con.prepareStatement("select * from bill_2022 where month=?");
+            MonthBill.setInt(1, month);
+            resultSet = MonthBill.executeQuery();
+            if (resultSet.next()) {
+                sb.append("month: ").append(resultSet.getString("month")).append("\n");
+                sb.append("total income in this month: ").append(resultSet.getString("total_income")).append("\n");
+                sb.append("most profitable product: ").append(resultSet.getString("most_profitable_product_id")).append("\n");
+                sb.append("most profitable supply center: ").append(resultSet.getString("most_profitable_sustc_id")).append("\n");
+                sb.append("salesman with the highest selling performance: ").append(resultSet.getString("salesman_of_the_month")).append("\n");
+            }else{
+                sb.append("no information of month ").append(month).append( " yet.");
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }

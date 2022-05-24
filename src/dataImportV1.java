@@ -422,41 +422,6 @@ public class dataImportV1 {
         }
     }
 
-    //
-//    public int getPurchasePrice(int sustcId, int modelId, int staffId) {
-//        String checkBill = "select purchase_price from stock where sustc_id=?,model_id=?,supply_staff_id=?";
-//        int ans = 0;
-//        try {
-//            PreparedStatement preparedStatement = con.prepareStatement(checkBill);
-//            preparedStatement.setInt(1, sustcId);
-//            preparedStatement.setInt(2, modelId);
-//            preparedStatement.setInt(3, staffId);
-//            ResultSet resultSet = preparedStatement.executeQuery();
-//            if (resultSet.next()) {
-//                ans = Integer.parseInt(resultSet.getString("purchase_price"));
-//            }
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return ans;
-//    }
-//
-//    public boolean checkBill(String conId) {
-//        String checkBill = "select * from bills where contract_id=?";
-//        boolean ans = false;
-//        try {
-//            PreparedStatement preparedStatement = con.prepareStatement(checkBill);
-//            preparedStatement.setString(1, conId);
-//            ResultSet resultSet = preparedStatement.executeQuery();
-//            if (resultSet.next()) {
-//                ans = true;
-//            }
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return ans;
-//    }
-//
     public int getUnitPrice(int modelId) {
         String sql = "select price from product where model_id=?";
         int ans = 0;
@@ -528,6 +493,7 @@ public class dataImportV1 {
         }
         return ans;
     }
+
     public boolean checkStock(int sustcId, int modelId, int quantity) {
 
         String sql = "select * from stock where model_id=? and sustc_id=?";
@@ -852,6 +818,105 @@ public class dataImportV1 {
             e.printStackTrace();
         }
     }
+
+    //functions to implement the table: bill_2022
+    public long[] getMonthlyIncome(int month) {
+        String sql = "insert into bill_2022(total_income,month,most_profitable_product_id," +
+                "most_profitable_sustc_id,salesman_of_the_month)values(?,?,?,?,?)";
+        String getIncome = "select sum(month.tot_income)\n" +
+                "from(\n" +
+                "    SELECT real_month,tot_income\n" +
+                "    from (\n" +
+                "         select extract(month from lodgement_date) as real_month,tot_income\n" +
+                "        from orders\n" +
+                "             )t1\n" +
+                "    where real_month=?\n" +
+                "        )month";
+        String getCenter = "select sum(month.tot_income) as res, sustc_id\n" +
+                "from (\n" +
+                "         select tot_income, sustc_id\n" +
+                "         from (\n" +
+                "                  select extract(month from lodgement_date) as real_month, tot_income, c2.sustc_id\n" +
+                "                  from orders\n" +
+                "             join contract c on orders.contract_id = c.contract_id\n" +
+                "             join client c2 on c2.client_id = c.client_id\n" +
+                "              ) t1\n" +
+                "         where real_month = ?\n" +
+                "     ) month\n" +
+                "group by sustc_id\n" +
+                "order by res desc\n" +
+                "limit 1 offset 0;";
+        String getProduct = "select sum(month.tot_income) as res, model_id\n" +
+                "from (\n" +
+                "         select tot_income, model_id\n" +
+                "         from (\n" +
+                "                  select extract(month from lodgement_date) as real_month, tot_income, model_id\n" +
+                "                  from orders\n" +
+                "              ) t1\n" +
+                "         where real_month = ?\n" +
+                "     ) month\n" +
+                "group by model_id\n" +
+                "order by res desc\n" +
+                "limit 1 offset 0;";
+        String getStaff = "select sum(month.tot_income) as s, salesman_id\n" +
+                "from (\n" +
+                "         select tot_income, salesman_id\n" +
+                "         from (\n" +
+                "                  select extract(month from lodgement_date) as real_month, tot_income, salesman_id\n" +
+                "                  from orders\n" +
+                "              ) t1\n" +
+                "         where real_month = ?\n" +
+                "     ) month\n" +
+                "group by salesman_id\n" +
+                "order by s desc\n" +
+                "limit 1 offset 0;";
+        long[] income = new long[4];
+        int staffId=0,mId=0,sustcId=0;
+        try {
+            PreparedStatement stmtSet = con.prepareStatement(sql);
+            PreparedStatement stmtGet = con.prepareStatement(getIncome);
+            PreparedStatement stmtCenter = con.prepareStatement(getCenter);
+            PreparedStatement stmtProduct = con.prepareStatement(getProduct);
+            PreparedStatement stmtStaff = con.prepareStatement(getStaff);
+            stmtGet.setInt(1, month);
+            stmtCenter.setInt(1, month);
+            stmtProduct.setInt(1, month);
+            stmtStaff.setInt(1, month);
+            ResultSet resultSetI = stmtGet.executeQuery();
+            ResultSet resultSetC = stmtCenter.executeQuery();
+            ResultSet resultSetP = stmtProduct.executeQuery();
+            ResultSet resultSetS = stmtStaff.executeQuery();
+            if (resultSetI.next()&&resultSetI.getString("sum")!=null) {
+                income[0] = Integer.parseInt(resultSetI.getString("sum"));
+            }
+            if (resultSetC.next()&&resultSetC.getString("res")!=null) {
+                income[1] = Integer.parseInt(resultSetC.getString("res"));
+                sustcId=Integer.parseInt(resultSetC.getString("sustc_id"));
+
+            }
+            if (resultSetP.next()&&resultSetP.getString("res")!=null) {
+                income[2] = Integer.parseInt(resultSetP.getString("res"));
+                mId=Integer.parseInt(resultSetP.getString("model_id"));
+            }
+            if (resultSetS.next()&&resultSetS.getString("s")!=null) {
+                income[3] = Integer.parseInt(resultSetS.getString("s"));
+                staffId = Integer.parseInt(resultSetS.getString("salesman_id"));
+
+            }
+            if(income[0]!=0 && mId!=0 &&staffId!=0&&sustcId!=0) {
+                stmtSet.setLong(1, income[0]);
+                stmtSet.setLong(2, month);
+                stmtSet.setLong(3, mId);
+                stmtSet.setLong(4, sustcId);
+                stmtSet.setLong(5, staffId);
+                stmtSet.execute();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return income;
+    }
+
 }
 
 

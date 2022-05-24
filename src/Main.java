@@ -11,20 +11,23 @@ public class Main {
 //        imp.impModel();
 //        imp.impStaff();
 
-        imp.setStockIn();
-        imp.placeOrder();
-        imp.updateOrder();
-        imp.deleteOrder();
-        imp.closeConnection();
+//        imp.setStockIn();
+//        imp.placeOrder();
+//        imp.updateOrder();
+//        imp.deleteOrder();
+//        imp.closeConnection();
         dm.openDB();
-        System.out.println(dm.getAllStaffCount());
-        System.out.println(dm.getContractCount());
-        System.out.println(dm.getOrderCount());
-        System.out.println(dm.getNeverSoldProductCount());
-        System.out.println(dm.getFavoriteProductModel());
-        System.out.println(dm.getAvgStockByCenter());
-//        System.out.println(dm.getProductByNumber());
-
+//        System.out.println(dm.getAllStaffCount());
+//        System.out.println(dm.getContractCount());
+//        System.out.println(dm.getOrderCount());
+//        System.out.println(dm.getNeverSoldProductCount());
+//        System.out.println(dm.getFavoriteProductModel());
+//        System.out.println(dm.getAvgStockByCenter());
+//for implementing bill_2022:
+        for (int i = 1; i <13 ; i++) {
+            imp.getMonthlyIncome(i);
+            System.out.println(dm.getMonthlyAll(i));
+        }
         dm.closeDB();
     }
 }
