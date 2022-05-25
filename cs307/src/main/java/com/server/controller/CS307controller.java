@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 @RestController
 public class CS307controller {
@@ -61,22 +62,25 @@ public class CS307controller {
     }
 
     @RequestMapping("/getAllStaffCount")
-    public String getAllStaffCount() {
+    public Object[] getAllStaffCount() {
         openDB();
-        StringBuilder sb = new StringBuilder();
+        ArrayList<String> ans = new ArrayList<>();
+
         try {
             AllStaffCount = con.prepareStatement("select type,count(*) as number from staff " +
                     "group by type");
             resultSet = AllStaffCount.executeQuery();
             while (resultSet.next()) {
+                StringBuilder sb = new StringBuilder();
                 sb.append(String.format("%-20s  %-5s", resultSet.getString("type"),
-                        resultSet.getString("number"))).append("<br />");
+                        resultSet.getString("number")));
+                ans.add(sb.toString());
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         closeDB();
-        return sb.toString();
+        return ans.toArray();
     }
 
     @RequestMapping("/getContractCount")
@@ -89,7 +93,7 @@ public class CS307controller {
             resultSet = ContractCount.executeQuery();
 
             while (resultSet.next()) {
-                sb.append(String.format("%-5s", resultSet.getString("number"))).append("<br />");
+                sb.append(String.format("%-5s", resultSet.getString("number"))).append("\n");
             }
         } catch (SQLException e) {
             e.printStackTrace();

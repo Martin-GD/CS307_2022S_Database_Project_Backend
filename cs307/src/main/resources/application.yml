@@ -3,3 +3,6 @@ spring:
     url: jdbc:postgresql://localhost:5432/cs307_proj
     username: checker
     password: 123456
+
+server:
+  port: 8181
