@@ -1,6 +1,7 @@
 package com.server.controller;
 
 
+import com.server.entity.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -9,8 +10,9 @@ import java.util.ArrayList;
 
 @RestController
 public class CS307controller {
-
+//    databaseController db = new databaseController();
     private Connection con = null;
+
     private ResultSet resultSet;
     private static PreparedStatement AllStaffCount = null;
     private static PreparedStatement ContractCount = null;
@@ -61,26 +63,36 @@ public class CS307controller {
         }
     }
 
+
+
     @RequestMapping("/getAllStaffCount")
-    public Object[] getAllStaffCount() {
+    public StaffCount[] getAllStaffCount() {
         openDB();
-        ArrayList<String> ans = new ArrayList<>();
+        ArrayList<StaffCount> ans = new ArrayList<>();
 
         try {
             AllStaffCount = con.prepareStatement("select type,count(*) as number from staff " +
                     "group by type");
             resultSet = AllStaffCount.executeQuery();
+
             while (resultSet.next()) {
-                StringBuilder sb = new StringBuilder();
-                sb.append(String.format("%-20s  %-5s", resultSet.getString("type"),
-                        resultSet.getString("number")));
-                ans.add(sb.toString());
+                StaffCount t = new StaffCount();
+                t.setStaffCount(resultSet.getString("type"),resultSet.getInt("number"));
+                ans.add(t);
+//                StringBuilder sb = new StringBuilder();
+//                sb.append(String.format("%-20s  %-5s", resultSet.getString("type"),
+//                        resultSet.getString("number")));
+//                ans.add(sb.toString());
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         closeDB();
-        return ans.toArray();
+        StaffCount[] arr = new StaffCount[ans.size()];
+        for (int i = 0; i < ans.size(); i++) {
+            arr[i] = ans.get(i);
+        }
+        return arr;
     }
 
     @RequestMapping("/getContractCount")
@@ -145,30 +157,39 @@ public class CS307controller {
     }
 
     @RequestMapping("/getFavoriteProductModel")
-    public String getFavoriteProductModel() {
+    public FavoriteProductModelE[] getFavoriteProductModel() {
         openDB();
-        StringBuilder sb = new StringBuilder();
+
+        ArrayList<FavoriteProductModelE> ans = new ArrayList<>();
         try {
             FavoriteProductModel = con.prepareStatement("select model_name, num as number "
                     + "from ((select model_id, sum(quantity) as num from orders group by model_id) m2 left join product on m2.model_id = product.model_id)s1, " +
                     "(select max(num) maxq from (select model_id, sum(quantity) as num from orders group by model_id) m1) s2 where s1.num = s2.maxq");
             resultSet = FavoriteProductModel.executeQuery();
-            sb.append(String.format("%-50s  %-5s", "model_name", "quantity")).append("<br />");
+
+
             while (resultSet.next()) {
-                sb.append(String.format("%-50s  %-5s", resultSet.getString("model_name"),
-                        resultSet.getString("number"))).append("<br />");
+                FavoriteProductModelE t = new FavoriteProductModelE();
+                t.setFavoriteProductModelE(resultSet.getString("model_name"),resultSet.getInt("number"));
+                ans.add(t);
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         closeDB();
-        return sb.toString();
+        FavoriteProductModelE[] arr = new FavoriteProductModelE[ans.size()];
+        for (int i = 0; i < ans.size(); i++) {
+            arr[i] = ans.get(i);
+        }
+        return arr;
     }
 
     @RequestMapping("/getAvgStockByCenter")
-    public String getAvgStockByCenter() {
+    public AvgStockByCenterE[] getAvgStockByCenter() {
         openDB();
-        StringBuilder sb = new StringBuilder();
+        ArrayList<AvgStockByCenterE> ans = new ArrayList<>();
+
         try {
             AvgStockByCenter = con.prepareStatement("select m2.supply_center, text(round(avg(sum / 1.0), 1)) as average " +
                     "from (select * " +
@@ -179,19 +200,26 @@ public class CS307controller {
                     "group by m2.supply_center " +
                     "order by supply_center");
             resultSet = AvgStockByCenter.executeQuery();
-//            sb.append(String.format("%-50s  %-5s", "supply_center", " average")).append("\n");
+
+
             while (resultSet.next()) {
-                sb.append(String.format("%-50s  %-5s", resultSet.getString("supply_center"),
-                        resultSet.getString("average"))).append("<br />");
+                AvgStockByCenterE t = new AvgStockByCenterE();
+                t.setAvgStockByCenterE(resultSet.getString("supply_center"),resultSet.getInt("average"));
+                ans.add(t);
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         closeDB();
-        return sb.toString();
+        AvgStockByCenterE[] arr = new AvgStockByCenterE[ans.size()];
+        for (int i = 0; i < ans.size(); i++) {
+            arr[i] = ans.get(i);
+        }
+        return arr;
     }
 
-    @RequestMapping("/getProductByNumber")
+    @RequestMapping("/getProductByNumber?product_number=need_number")
     public String getProductByNumber(String product_number) {
         openDB();
         StringBuilder sb = new StringBuilder();
@@ -221,8 +249,11 @@ public class CS307controller {
     }
 
     @RequestMapping("/getContractInfo")
-    public String getContractInfo(String contract_number) {
+    public Object[] getContractInfo(String contract_number) {
         openDB();
+        Object[] arr = new Object[2];
+        ContractInfo1 arr0 = new ContractInfo1();
+        ArrayList<ContractInfo2> ans = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         try {
             ContractInfo = con.prepareStatement("select contract_id,staff_name,c_name,supply_center from contract " +
@@ -233,10 +264,9 @@ public class CS307controller {
             ContractInfo.setString(1,contract_number);
             resultSet = ContractInfo.executeQuery();
             resultSet.next();
-            sb.append("number: ").append(resultSet.getString("contract_id")).append("<br />");
-            sb.append("manager: ").append(resultSet.getString("staff_name")).append("<br />");
-            sb.append("enterprise: ").append(resultSet.getString("c_name")).append("<br />");
-            sb.append("supply_center: ").append(resultSet.getString("supply_center")).append("<br />");
+            arr0.setContractInfo1(resultSet.getString("contract_id"),resultSet.getString("staff_name")
+                    ,resultSet.getString("c_name"),resultSet.getString("supply_center"));
+            arr[0]=arr0;
 
             OrderInfo = con.prepareStatement("select model_name,staff_name,quantity,price,delivery_date,lodgement_date from orders " +
                     "left join (select model_id p_id, model_name, price from product)p on orders.model_id = p_id " +
@@ -245,30 +275,30 @@ public class CS307controller {
             OrderInfo.setString(1,contract_number);
             resultSet = OrderInfo.executeQuery();
 
-            int a = 0;
+
             while (resultSet.next()) {
-                if (a==0){
-                    sb.append(String.format("%-50s  %-30s  %-10s  %-15s  %-25s  %-20s",
-                            "product_model", "salesman","quantity","unit_price","estimate_delivery_date","lodgement_date")).append("<br />");
-                    a++;
-                }
-                sb.append(String.format("%-50s  %-30s  %-10s  %-15s  %-25s  %-20s",
-                        resultSet.getString("model_name"),
+                ContractInfo2 t = new ContractInfo2();
+                t.setContractInfo2(resultSet.getString("model_name"),
                         resultSet.getString("staff_name"),
-                        resultSet.getString("quantity"),
-                        resultSet.getString("price"),
+                        resultSet.getInt("quantity"),
+                        resultSet.getInt("price"),
                         resultSet.getString("delivery_date"),
-                        resultSet.getString("lodgement_date"))).append("<br />");
+                        resultSet.getString("lodgement_date"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         closeDB();
-        return sb.toString();
+        ContractInfo2[] arr1 = new ContractInfo2[ans.size()];
+        for (int i = 0; i < ans.size(); i++) {
+            arr1[i] = ans.get(i);
+        }
+        arr[1] = arr1;
+        return arr;
     }
 
     @RequestMapping("/truncateAll")
-    public void truncateAll(){
+    public String truncateAll(){
         openDB();
         String sql="truncate table stock,orders, sustc,staff, product, client,contract restart identity cascade";
         try {
@@ -277,8 +307,10 @@ public class CS307controller {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            return "fail!";
         }
         closeDB();
+        return "success!";
     }
 
 
