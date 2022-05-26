@@ -25,6 +25,7 @@ public class CS307controller {
     private static PreparedStatement ProductByNumber = null;
     private static PreparedStatement ContractInfo = null;
     private static PreparedStatement OrderInfo = null;
+    private static PreparedStatement MonthBill = null;
 
     private String host = "localhost";
     private String dbname = "CS307Proj2";
@@ -223,7 +224,7 @@ public class CS307controller {
 
     @RequestMapping("/getProductByNumber")
     public ProductByNumberE[] getProductByNumber(String product_number) {
-        openDB();
+//        openDB();
         ArrayList<ProductByNumberE> ans = new ArrayList<>();
 
         try {
@@ -250,7 +251,7 @@ public class CS307controller {
             e.printStackTrace();
             return new ProductByNumberE[0];
         }
-        closeDB();
+//        closeDB();
         ProductByNumberE[] arr = new ProductByNumberE[ans.size()];
         for (int i = 0; i < ans.size(); i++) {
             arr[i] = ans.get(i);
@@ -258,9 +259,10 @@ public class CS307controller {
         return arr;
     }
 
+
     @RequestMapping("/getContractInfo")
     public Object[] getContractInfo(String contract_number) {
-        openDB();
+//        openDB();
         Object[] arr = new Object[2];
         ContractInfo1 arr0 = new ContractInfo1();
         ArrayList<ContractInfo2> ans = new ArrayList<>();
@@ -302,7 +304,7 @@ public class CS307controller {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        closeDB();
+//        closeDB();
         ContractInfo2[] arr1 = new ContractInfo2[ans.size()];
         for (int i = 0; i < ans.size(); i++) {
             arr1[i] = ans.get(i);
@@ -312,11 +314,43 @@ public class CS307controller {
         return arr;
     }
 
+    @RequestMapping("/getMonthlyAll")
+    public MonthlyAllE[][] getMonthlyAll() {
+        MonthlyAllE[][] arr = new MonthlyAllE[13][1];
+        for (int i = 1; i <= 12; i++) {
+            int month = i;
+            try {
+                MonthBill = con.prepareStatement("select * from bill_2022 where month=?");
+                MonthBill.setInt(1, month);
+                resultSet = MonthBill.executeQuery();
+                MonthlyAllE t = new MonthlyAllE();
+
+                if (resultSet.next()) {
+                    t.setMonthlyAllE(resultSet.getString("month"),
+                            resultSet.getString("total_income"),
+                            resultSet.getString("most_profitable_product_id"),
+                            resultSet.getString("most_profitable_sustc_id"),
+                            resultSet.getString("salesman_of_the_month"));
+
+                }else{
+
+                }
+
+                arr[i][0]=t;
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return arr;
+    }
+
 
     @RequestMapping("/truncateAll")
     public String truncateAll(){
-        openDB();
-        String sql="truncate table stock,orders, sustc,staff, product, client,contract restart identity cascade";
+//        openDB();
+        String sql="truncate table stock,orders, sustc,staff, product, client,contract,bill_2022 restart identity cascade";
         try {
             PreparedStatement preparedStatement = con.prepareStatement(sql);
             preparedStatement.execute();
@@ -325,7 +359,7 @@ public class CS307controller {
             e.printStackTrace();
             return "fail!";
         }
-        closeDB();
+//        closeDB();
         return "success!";
     }
 

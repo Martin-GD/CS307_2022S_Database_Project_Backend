@@ -38,6 +38,7 @@ public class importController {
         return "success!";
 
     }
+
     @RequestMapping("/impEnterprise")
     public String impEnterprise() throws SQLException {
 
@@ -69,6 +70,7 @@ public class importController {
         }
         return "success!";
     }
+
     @RequestMapping("/impStaff")
     public String impStaff() throws SQLException {
 
@@ -104,6 +106,7 @@ public class importController {
         }
         return "success!";
     }
+
     @RequestMapping("/impModel")
     public String  impModel() throws SQLException {
 
@@ -134,6 +137,7 @@ public class importController {
         }
         return "success!";
     }
+
     @RequestMapping("/setStockIn")
     public String setStockIn() throws SQLException {
 
@@ -381,6 +385,18 @@ public class importController {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            return "fail!";
+        }
+        return "success!";
+    }
+
+    @RequestMapping("/getAllMonthBill")
+    public String getAllMonthBill() {
+        try {
+            for (int i = 1; i < 13; i++) {
+                getMonthlyIncome(i);
+            }
+        }catch (Exception e){
             return "fail!";
         }
         return "success!";
