@@ -1,6 +1,7 @@
 package com.server.controller;
 
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.server.entity.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 @RestController
 public class CS307controller {
     database db = new database();
-    private Connection con = db.getCon();
+
 
 
 
@@ -33,44 +34,14 @@ public class CS307controller {
     private String pwd = "123456";
     private String port = "5432";
 
-    public void openDB() {
-        try {
-            Class.forName("org.postgresql.Driver");
-
-        } catch (Exception e) {
-            System.err.println("Cannot find the PostgreSQL driver. Check CLASSPATH.");
-            System.exit(1);
-        }
-        try {
-            String url = "jdbc:postgresql://" + host + ":" + port + "/" + dbname;
-            con = DriverManager.getConnection(url, user, pwd);
-
-        } catch (SQLException e) {
-            System.err.println("Database connection failed");
-            System.err.println(e.getMessage());
-            System.exit(1);
-        }
-
+    public CS307controller() throws SQLException {
     }
-
-
-    public void closeDB() {
-        if (con != null) {
-            try {
-
-                con.close();
-                con = null;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
 
 
     @RequestMapping("/getAllStaffCount")
-    public StaffCount[] getAllStaffCount() {
-//        openDB();
+    public StaffCount[] getAllStaffCount() throws SQLException {
+
+        Connection con = db.getCon();
         ArrayList<StaffCount> ans = new ArrayList<>();
 
         try {
@@ -89,8 +60,10 @@ public class CS307controller {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
-//        closeDB();
+
         StaffCount[] arr = new StaffCount[ans.size()];
         for (int i = 0; i < ans.size(); i++) {
             arr[i] = ans.get(i);
@@ -99,8 +72,9 @@ public class CS307controller {
     }
 
     @RequestMapping("/getContractCount")
-    public String getContractCount() {
-//        openDB();
+    public String getContractCount() throws SQLException {
+
+        Connection con = db.getCon();
         StringBuilder sb = new StringBuilder();
         try {
             ContractCount = con.prepareStatement("select count(*) as number from contract ");
@@ -112,14 +86,16 @@ public class CS307controller {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
 //        closeDB();
         return sb.toString();
     }
 
     @RequestMapping("/getOrderCount")
-    public String getOrderCount() {
-//        openDB();
+    public String getOrderCount() throws SQLException {
+        Connection con = db.getCon();
         StringBuilder sb = new StringBuilder();
         try {
             OrderCount = con.prepareStatement("select count(*) as number from orders");
@@ -130,14 +106,16 @@ public class CS307controller {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
 //        closeDB();
         return sb.toString();
     }
 
     @RequestMapping("/getNeverSoldProductCount")
-    public String getNeverSoldProductCount() {
-//        openDB();
+    public String getNeverSoldProductCount() throws SQLException {
+        Connection con = db.getCon();
         StringBuilder sb = new StringBuilder();
         try {
             NeverSoldProductCount = con.prepareStatement("select count(model_id) as number " +
@@ -154,14 +132,16 @@ public class CS307controller {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
 //        closeDB();
         return sb.toString();
     }
 
     @RequestMapping("/getFavoriteProductModel")
-    public FavoriteProductModelE[] getFavoriteProductModel() {
-//        openDB();
+    public FavoriteProductModelE[] getFavoriteProductModel() throws SQLException {
+        Connection con = db.getCon();
 
         ArrayList<FavoriteProductModelE> ans = new ArrayList<>();
         try {
@@ -179,6 +159,8 @@ public class CS307controller {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
 //        closeDB();
         FavoriteProductModelE[] arr = new FavoriteProductModelE[ans.size()];
@@ -189,8 +171,8 @@ public class CS307controller {
     }
 
     @RequestMapping("/getAvgStockByCenter")
-    public AvgStockByCenterE[] getAvgStockByCenter() {
-//        openDB();
+    public AvgStockByCenterE[] getAvgStockByCenter() throws SQLException {
+        Connection con = db.getCon();
         ArrayList<AvgStockByCenterE> ans = new ArrayList<>();
 
         try {
@@ -213,6 +195,8 @@ public class CS307controller {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
 //        closeDB();
         AvgStockByCenterE[] arr = new AvgStockByCenterE[ans.size()];
@@ -223,8 +207,8 @@ public class CS307controller {
     }
 
     @RequestMapping("/getProductByNumber")
-    public ProductByNumberE[] getProductByNumber(String product_number) {
-//        openDB();
+    public ProductByNumberE[] getProductByNumber(String product_number) throws SQLException {
+        Connection con = db.getCon();
         ArrayList<ProductByNumberE> ans = new ArrayList<>();
 
         try {
@@ -250,6 +234,8 @@ public class CS307controller {
         } catch (SQLException e) {
             e.printStackTrace();
             return new ProductByNumberE[0];
+        } finally {
+            con.close();
         }
 //        closeDB();
         ProductByNumberE[] arr = new ProductByNumberE[ans.size()];
@@ -261,8 +247,8 @@ public class CS307controller {
 
 
     @RequestMapping("/getContractInfo")
-    public Object[] getContractInfo(String contract_number) {
-//        openDB();
+    public Object[] getContractInfo(String contract_number) throws SQLException {
+        Connection con = db.getCon();
         Object[] arr = new Object[2];
         ContractInfo1 arr0 = new ContractInfo1();
         ArrayList<ContractInfo2> ans = new ArrayList<>();
@@ -303,6 +289,8 @@ public class CS307controller {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
 //        closeDB();
         ContractInfo2[] arr1 = new ContractInfo2[ans.size()];
@@ -315,7 +303,8 @@ public class CS307controller {
     }
 
     @RequestMapping("/getMonthlyAll")
-    public MonthlyAllE[][] getMonthlyAll() {
+    public MonthlyAllE[][] getMonthlyAll() throws SQLException {
+        Connection con = db.getCon();
         MonthlyAllE[][] arr = new MonthlyAllE[13][1];
         for (int i = 1; i <= 12; i++) {
             int month = i;
@@ -340,6 +329,8 @@ public class CS307controller {
 
             } catch (SQLException e) {
                 e.printStackTrace();
+            } finally {
+                con.close();
             }
         }
 
@@ -348,8 +339,8 @@ public class CS307controller {
 
 
     @RequestMapping("/truncateAll")
-    public String truncateAll(){
-//        openDB();
+    public String truncateAll() throws SQLException {
+        Connection con = db.getCon();
         String sql="truncate table stock,orders, sustc,staff, product, client,contract,bill_2022 restart identity cascade";
         try {
             PreparedStatement preparedStatement = con.prepareStatement(sql);
@@ -358,6 +349,8 @@ public class CS307controller {
         } catch (SQLException e) {
             e.printStackTrace();
             return "fail!";
+        } finally {
+            con.close();
         }
 //        closeDB();
         return "success!";
@@ -367,7 +360,8 @@ public class CS307controller {
 }
 
 class database{
-    private Connection con = null;
+
+    private ComboPooledDataSource dbPool = new ComboPooledDataSource();
     private String host = "localhost";
     private String dbname = "CS307Proj2";
     private String user = "checker";
@@ -379,39 +373,40 @@ class database{
     }
 
     public void openDB() {
+//        try {
+//            Class.forName("org.postgresql.Driver");
+//
+//        } catch (Exception e) {
+//            System.err.println("Cannot find the PostgreSQL driver. Check CLASSPATH.");
+//            System.exit(1);
+//        }
+//        try {
+//            String url = "jdbc:postgresql://" + host + ":" + port + "/" + dbname;
+//            con = DriverManager.getConnection(url, user, pwd);
+//
+//        } catch (SQLException e) {
+//            System.err.println("Database connection failed");
+//            System.err.println(e.getMessage());
+//            System.exit(1);
+//        }
+//        return;
         try {
-            Class.forName("org.postgresql.Driver");
-
+            dbPool.setDriverClass("org.postgresql.Driver");
         } catch (Exception e) {
             System.err.println("Cannot find the PostgreSQL driver. Check CLASSPATH.");
             System.exit(1);
         }
-        try {
-            String url = "jdbc:postgresql://" + host + ":" + port + "/" + dbname;
-            con = DriverManager.getConnection(url, user, pwd);
+        String url = "jdbc:postgresql://" + host + ":" + port + "/" + dbname;
+        dbPool.setUser(user);
+        dbPool.setPassword(pwd);
+        dbPool.setJdbcUrl(url);
 
-        } catch (SQLException e) {
-            System.err.println("Database connection failed");
-            System.err.println(e.getMessage());
-            System.exit(1);
-        }
-        return;
+        dbPool.setInitialPoolSize(8);
+        dbPool.setMaxPoolSize(12);
     }
 
 
-    public void closeDB() {
-        if (con != null) {
-            try {
-
-                con.close();
-                con = null;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public Connection getCon(){
-        return this.con;
+    public Connection getCon() throws SQLException {
+        return this.dbPool.getConnection();
     }
 }

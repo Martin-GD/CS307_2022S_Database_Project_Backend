@@ -14,11 +14,11 @@ import java.sql.*;
 public class importController {
 //    databaseController db = new databaseController();
     database db = new database();
-    protected Connection con = db.getCon();
+
 
     @RequestMapping("/impCenter")
     public String impCenter() throws SQLException {
-
+        Connection con = db.getCon();
         String sql = "insert into sustc(supply_center) VALUES (?) on conflict do nothing ;";
         String[] message;
         String center;
@@ -34,6 +34,8 @@ public class importController {
         } catch (IOException e) {
             e.printStackTrace();
             return "fail!";
+        } finally {
+            con.close();
         }
         return "success!";
 
@@ -41,7 +43,7 @@ public class importController {
 
     @RequestMapping("/impEnterprise")
     public String impEnterprise() throws SQLException {
-
+        Connection con = db.getCon();
         String sql = "insert into client(c_name, country, city, industry, sustc_id) VALUES (?,?,?,?,?) on conflict do nothing ;";
         String[] message;
         String cName, country, city, industry;
@@ -67,13 +69,15 @@ public class importController {
         } catch (IOException e) {
             e.printStackTrace();
             return  "fail!";
+        } finally {
+            con.close();
         }
         return "success!";
     }
 
     @RequestMapping("/impStaff")
     public String impStaff() throws SQLException {
-
+        Connection con = db.getCon();
         String sql = "insert into staff(staff_id, staff_name, gender, age, sustc_id, phone, type) VALUES(?,?,?,?,?,?,?) on conflict do nothing ;";
         String[] message;
         String name, gender, phone, type;
@@ -103,13 +107,15 @@ public class importController {
         } catch (IOException e) {
             e.printStackTrace();
             return "fail!";
+        } finally {
+            con.close();
         }
         return "success!";
     }
 
     @RequestMapping("/impModel")
     public String  impModel() throws SQLException {
-
+        Connection con = db.getCon();
         String sql = "insert into product(code, model_name, price, p_name) VALUES (?,?,?,?)on conflict do nothing ;";
         String[] message;
         String code, model_name, p_name;
@@ -134,13 +140,15 @@ public class importController {
         } catch (IOException e) {
             e.printStackTrace();
             return "fail!";
+        } finally {
+            con.close();
         }
         return "success!";
     }
 
     @RequestMapping("/setStockIn")
     public String setStockIn() throws SQLException {
-
+        Connection con = db.getCon();
         String sql = "insert into stock(sustc_id,model_id,supply_staff_id," +
                 "purchase_price,stock_quantity,stock_date) values(?,?,?,?,?,?) on conflict do nothing";
         String[] stockInfo;
@@ -193,6 +201,8 @@ public class importController {
         } catch (IOException e) {
             e.printStackTrace();
             return "fail!";
+        } finally {
+            con.close();
         }
 //        System.out.println("done");
         return "success!";
@@ -200,7 +210,7 @@ public class importController {
 
     @RequestMapping("/placeOrder")
     public String placeOrder() throws SQLException {
-
+        Connection con = db.getCon();
         String orderSql = "insert into orders(contract_id,model_id,quantity" +
                 ",tot_income,salesman_id,delivery_date,lodgement_date,contract_type)" +
                 "values(?,?,?,?,?,?,?,?)on conflict do nothing";
@@ -279,13 +289,15 @@ public class importController {
 
             e.printStackTrace();
             return "fail!";
+        } finally {
+            con.close();
         }
         return "success!";
     }
 
     @RequestMapping("/updateOrder")
     public String updateOrder() throws SQLException {
-
+        Connection con = db.getCon();
         String sql = "update orders set quantity=?,delivery_date=?,lodgement_date=?,tot_income=?" +
                 "where contract_id=? and model_id=? and salesman_id=?";
         String line;
@@ -340,13 +352,15 @@ public class importController {
         } catch (IOException e) {
             e.printStackTrace();
             return "fail!";
+        } finally {
+            con.close();
         }
         return "success!";
     }
 
     @RequestMapping("/deleteOrder")
     public String deleteOrder() throws SQLException {
-
+        Connection con = db.getCon();
 
         String line;
         String[] testInfo;
@@ -386,24 +400,29 @@ public class importController {
         } catch (IOException e) {
             e.printStackTrace();
             return "fail!";
+        } finally {
+            con.close();
         }
         return "success!";
     }
 
     @RequestMapping("/getAllMonthBill")
-    public String getAllMonthBill() {
+    public String getAllMonthBill() throws SQLException {
+        Connection con = db.getCon();
         try {
             for (int i = 1; i < 13; i++) {
                 getMonthlyIncome(i);
             }
         }catch (Exception e){
             return "fail!";
+        } finally {
+            con.close();
         }
         return "success!";
     }
 
-    public String[] getStaffInfo(int staff_id) {
-
+    public String[] getStaffInfo(int staff_id) throws SQLException {
+        Connection con = db.getCon();
         String sql = "select * from staff where staff_id=?";
         String[] ans = new String[2];
         try {
@@ -417,12 +436,14 @@ public class importController {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
         return ans;
     }
 
-    public int getSupplyCenter(String supplyCenter) {
-
+    public int getSupplyCenter(String supplyCenter) throws SQLException {
+        Connection con = db.getCon();
         String sql = "select * from sustc where supply_center =?";
         int ans = 0;
         try {
@@ -434,12 +455,14 @@ public class importController {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
         return ans;
     }
 
-    public int getProductId(String model) {
-
+    public int getProductId(String model) throws SQLException {
+        Connection con = db.getCon();
         String sql = "select * from product where model_name=?";
         int ans = 0;
         try {
@@ -452,13 +475,15 @@ public class importController {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
         return ans;
     }
 
-    public boolean checkProduct(String model) {
+    public boolean checkProduct(String model) throws SQLException {
         //返回false?即为产品不存在
-
+        Connection con = db.getCon();
         String sql = "select * from product where model_name =?";
         boolean ans = false;
         try {
@@ -470,12 +495,14 @@ public class importController {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
         return ans;
     }
 
-    public boolean checkStaff(int staffId) {
-
+    public boolean checkStaff(int staffId) throws SQLException {
+        Connection con = db.getCon();
         String sql = "select * from staff where staff_id =?";
         boolean ans = false;
         try {
@@ -487,13 +514,15 @@ public class importController {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
 
         return ans;
     }
 
-    public boolean checkSupCen(String supCenter) {
-
+    public boolean checkSupCen(String supCenter) throws SQLException {
+        Connection con = db.getCon();
         String sql = "select * from sustc where supply_center =?";
         boolean ans = false;
         try {
@@ -505,11 +534,14 @@ public class importController {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
         return ans;
     }
 
-    public int getUnitPrice(int modelId) {
+    public int getUnitPrice(int modelId) throws SQLException {
+        Connection con = db.getCon();
         String sql = "select price from product where model_id=?";
         int ans = 0;
         try {
@@ -521,12 +553,14 @@ public class importController {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
         return ans;
     }
 
-    public void updateStock(int modelId, int quantity, int sustcId) {
-
+    public void updateStock(int modelId, int quantity, int sustcId) throws SQLException {
+        Connection con = db.getCon();
         String sql = "update stock set tot_quantity=? where model_id=? and sustc_id=?";
         int rest;
         int stockQuantity = getStock(modelId, sustcId);
@@ -539,12 +573,14 @@ public class importController {
             preparedStatement.execute();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
     }
 
     //返回现有的tot库存数量
-    public int getStock(int modelId, int sustcId) {
-
+    public int getStock(int modelId, int sustcId) throws SQLException {
+        Connection con = db.getCon();
         int ans = 0;
         String sql = "select * from stock where model_id=? and sustc_id=?";
         try {
@@ -557,12 +593,14 @@ public class importController {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
         return ans;
     }
 
-    public boolean checkUpdateStock(int sustcId, int modelId, int quantity) {
-
+    public boolean checkUpdateStock(int sustcId, int modelId, int quantity) throws SQLException {
+        Connection con = db.getCon();
         String sql = "select * from stock where model_id=? and sustc_id=?";
         boolean ans = false;
         int before = getStock(modelId, sustcId);
@@ -577,12 +615,14 @@ public class importController {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
         return ans;
     }
 
-    public boolean checkStock(int sustcId, int modelId, int quantity) {
-
+    public boolean checkStock(int sustcId, int modelId, int quantity) throws SQLException {
+        Connection con = db.getCon();
         String sql = "select * from stock where model_id=? and sustc_id=?";
         boolean ans = false;
         try {
@@ -596,12 +636,14 @@ public class importController {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
         return ans;
     }
 
-    public int[] getClientInfoByName(String cName) {
-
+    public int[] getClientInfoByName(String cName) throws SQLException {
+        Connection con = db.getCon();
         String sql = "select * from client where c_name=?";
         int[] ans = new int[2];
         try {
@@ -616,14 +658,16 @@ public class importController {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
         return ans;
     }
 
 
 
-    public int getOrderQuantity(String conId, int modelId, int salesId) {
-
+    public int getOrderQuantity(String conId, int modelId, int salesId) throws SQLException {
+        Connection con = db.getCon();
         int ans = 0;
         String sql = "select * from orders where model_id=? and salesman_id=? and contract_id=?";
         try {
@@ -637,12 +681,14 @@ public class importController {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
         return ans;
     }
 
-    public void deleteOneOrder(String conId, int modelId, int salesId) {
-
+    public void deleteOneOrder(String conId, int modelId, int salesId) throws SQLException {
+        Connection con = db.getCon();
         String sql = "delete from orders where contract_id=? and model_id=? and salesman_id=?";
         try {
             PreparedStatement preparedStatement = con.prepareStatement(sql);
@@ -652,12 +698,14 @@ public class importController {
             preparedStatement.execute();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
 
     }
 
-    public boolean checkSaleOrder(String conId, int salesId, int modelId) {
-
+    public boolean checkSaleOrder(String conId, int salesId, int modelId) throws SQLException {
+        Connection con = db.getCon();
         String sql = "select * from orders where contract_id=? and salesman_id=? and model_id=?";
         boolean ans = false;
         try {
@@ -672,14 +720,16 @@ public class importController {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
         return ans;
     }
 
 
 
-    public void returnDeleteStock(int modelId, int sustcId, int quantity) {
-
+    public void returnDeleteStock(int modelId, int sustcId, int quantity) throws SQLException {
+        Connection con = db.getCon();
         String sql = "update stock set tot_quantity=? where model_id=? and sustc_id=?";
         int now;
         int stockQuantity = getStock(modelId, sustcId);
@@ -692,11 +742,13 @@ public class importController {
             preparedStatement.execute();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
     }
 
-    public void returnUpdateStock(int modelId, int sustcId, int quantity, String conId, int salesId) {
-
+    public void returnUpdateStock(int modelId, int sustcId, int quantity, String conId, int salesId) throws SQLException {
+        Connection con = db.getCon();
         String sql = "update stock set tot_quantity=? where model_id=? and sustc_id=?";
         int now;
         //update前的
@@ -712,12 +764,14 @@ public class importController {
             preparedStatement.execute();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
     }
 
 
-    public int[] getSeqModel(int salesId, String conId, int seq) {
-
+    public int[] getSeqModel(int salesId, String conId, int seq) throws SQLException {
+        Connection con = db.getCon();
         String sql = "select * ,  rank() over (partition by salesman_id order by delivery_date) " +
                 "from orders  join product p on orders.model_id = p.model_id where salesman_id=? and contract_id=? " +
                 "order by p_name limit 1 offset ?";
@@ -736,12 +790,14 @@ public class importController {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
         return ans;
     }
 
-    public int getContractInfo(String conId) {
-
+    public int getContractInfo(String conId) throws SQLException {
+        Connection con = db.getCon();
         String sql = "select * from contract where contract_id=?";
         int ans = 0;
         try {
@@ -754,12 +810,14 @@ public class importController {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
         return ans;
     }
 
-    public String[] getClientInfoById(int cId) {
-
+    public String[] getClientInfoById(int cId) throws SQLException {
+        Connection con = db.getCon();
         String sql = "select * from client where client_id=?";
         String[] ans = new String[2];
         try {
@@ -772,12 +830,14 @@ public class importController {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
         return ans;
     }
 
-    public int getTotQuantity(int quantity, int sustcId, int modelId) {
-
+    public int getTotQuantity(int quantity, int sustcId, int modelId) throws SQLException {
+        Connection con = db.getCon();
         String sqlGet = "select * from stock where sustc_id=? and model_id=?";
         int tot = quantity;
         try {
@@ -791,12 +851,14 @@ public class importController {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
         return tot;
     }
 
-    public void updateTotQuantity(int tot, int sustcId, int modelId) {
-
+    public void updateTotQuantity(int tot, int sustcId, int modelId) throws SQLException {
+        Connection con = db.getCon();
         String sqlSet = "update stock set tot_quantity=? where sustc_id=? and model_id=?";
         try {
             PreparedStatement stmtSet = con.prepareStatement(sqlSet);
@@ -806,11 +868,14 @@ public class importController {
             stmtSet.execute();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
     }
 
     //functions to implement the table: bill_2022
-    public long[] getMonthlyIncome(int month) {
+    public long[] getMonthlyIncome(int month) throws SQLException {
+        Connection con = db.getCon();
         String sql = "insert into bill_2022(total_income,month,most_profitable_product_id," +
                 "most_profitable_sustc_id,salesman_of_the_month)values(?,?,?,?,?)";
         String getIncome = "select sum(month.tot_income)\n" +
@@ -903,6 +968,8 @@ public class importController {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            con.close();
         }
         return income;
     }

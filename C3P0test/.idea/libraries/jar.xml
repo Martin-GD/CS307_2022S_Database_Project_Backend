@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="jar">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/jar/mchange-commons-java-0.2.19.jar!/" />
+      <root url="jar://$PROJECT_DIR$/jar/postgresql-42.2.20.jar!/" />
+      <root url="jar://$PROJECT_DIR$/jar/c3p0-0.9.5.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/jar/mchange-commons-java-0.2.11.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

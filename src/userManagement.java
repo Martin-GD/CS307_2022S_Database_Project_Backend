@@ -46,18 +46,17 @@ public class userManagement {
 
     public void createRole(String role_name) {
         //do block for creating roles do not exist
-        String sql = """
-                DO
-                $do$
-                BEGIN
-                   IF EXISTS (
-                      SELECT FROM pg_catalog.pg_roles
-                      WHERE  rolname = ?)
-                   ELSE
-                      CREATE ROLE ? ;
-                   END IF;
-                END
-                $do$;""";
+        String sql = "DO " +
+                "                $do$ " +
+                "                BEGIN " +
+                "                   IF EXISTS ( " +
+                "                      SELECT FROM pg_catalog.pg_roles " +
+                "                      WHERE  rolname = ?) " +
+                "                   ELSE " +
+                "                      CREATE ROLE ? ; " +
+                "                   END IF; " +
+                "                END " +
+                "                $do$;";
 
         try {
             PreparedStatement stmt = con.prepareStatement(sql);
