@@ -10,8 +10,8 @@ import javax.persistence.Id;
 public class AvgStockByCenterE {
     @Id
     private String supply_center;
-    private int average;
-    public void setAvgStockByCenterE(String supply_center,int average){
+    private double average;
+    public void setAvgStockByCenterE(String supply_center,double average){
         this.supply_center = supply_center;
         this.average = average;
     }

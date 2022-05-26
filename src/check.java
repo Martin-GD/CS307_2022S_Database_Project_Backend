@@ -18,8 +18,8 @@ public class check {
 
 
     private String host = "localhost";
-    private String dbname = "project2";
-    private String user = "test";
+    private String dbname = "CS307Proj2";
+    private String user = "checker";
     private String pwd = "123456";
     private String port = "5432";
 
@@ -167,7 +167,7 @@ public class check {
         StringBuilder sb = new StringBuilder();
         try {
             ProductByNumber = con.prepareStatement("select distinct supply_center,code as product_name, " +
-                    "model_name,purchase_price as purchase_prise,tot_quantity " +
+                    "model_name,purchase_price as purchase_price,tot_quantity " +
                     "from (select * from stock " +
                     "    left join (select model_id m1_id, code, model_name from product) m1 on m1_id = stock.model_id " +
                     "    left join sustc s on stock.sustc_id = s.sustc_id) m2 " +

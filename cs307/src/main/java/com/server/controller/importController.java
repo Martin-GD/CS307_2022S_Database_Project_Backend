@@ -12,8 +12,9 @@ import java.sql.*;
 
 @RestController
 public class importController {
-    databaseController db = new databaseController();
-    protected Connection con = db.con;
+//    databaseController db = new databaseController();
+    database db = new database();
+    protected Connection con = db.getCon();
 
     @RequestMapping("/impCenter")
     public String impCenter() throws SQLException {
@@ -22,7 +23,7 @@ public class importController {
         String[] message;
         String center;
         try (PreparedStatement impC = con.prepareStatement(sql)) {
-            CsvReader infile = new CsvReader("center.csv", ',', Charset.forName("UTF-8"));
+            CsvReader infile = new CsvReader("D:/CS307_Proj/cs307/src/main/java/file/center.csv", ',', Charset.forName("UTF-8"));
             infile.readHeaders();
             while (infile.readRecord()) {
                 message = infile.getValues();
@@ -46,7 +47,7 @@ public class importController {
         int supplyCenter;
 
         try (PreparedStatement impE = con.prepareStatement(sql)) {
-            CsvReader infile = new CsvReader("enterprise.csv", ',', Charset.forName("UTF-8"));
+            CsvReader infile = new CsvReader("D:/CS307_Proj/cs307/src/main/java/file/enterprise.csv", ',', Charset.forName("UTF-8"));
             infile.readHeaders();
             while (infile.readRecord()) {
                 message = infile.getValues();
@@ -77,7 +78,7 @@ public class importController {
         int age, number, supplyCenter;
 
         try (PreparedStatement impS = con.prepareStatement(sql)) {
-            CsvReader infile = new CsvReader("staff.csv", ',', Charset.forName("UTF-8"));
+            CsvReader infile = new CsvReader("D:/CS307_Proj/cs307/src/main/java/file/staff.csv", ',', Charset.forName("UTF-8"));
             infile.readHeaders();
             while (infile.readRecord()) {
                 message = infile.getValues();
@@ -112,7 +113,7 @@ public class importController {
         int price;
 
         try (PreparedStatement impM = con.prepareStatement(sql)) {
-            CsvReader infile = new CsvReader("model.csv", ',', Charset.forName("UTF-8"));
+            CsvReader infile = new CsvReader("D:/CS307_Proj/cs307/src/main/java/file/model.csv", ',', Charset.forName("UTF-8"));
             infile.readHeaders();
             while (infile.readRecord()) {
                 message = infile.getValues();
@@ -149,7 +150,7 @@ public class importController {
         boolean checkSupCenter;
         String[] staffInfo;
         try (PreparedStatement stockIn = con.prepareStatement(sql);) {
-            CsvReader infile = new CsvReader("in_stock_test.csv", ',', Charset.forName("UTF-8"));
+            CsvReader infile = new CsvReader("D:/CS307_Proj/cs307/src/main/java/file/final_stock.csv", ',', Charset.forName("UTF-8"));
             infile.readHeaders();
             while (infile.readRecord()) {
                 stockInfo = infile.getValues();
@@ -222,7 +223,7 @@ public class importController {
             PreparedStatement billUpdate = con.prepareStatement(updateBillSql);
 
             try (BufferedReader infile
-                         = new BufferedReader(new FileReader("task2_test_data_final_public.tsv"))) {
+                         = new BufferedReader(new FileReader("D:/CS307_Proj/cs307/src/main/java/file/final_task2.tsv"))) {
                 while ((line = infile.readLine()) != null) {
                     orderInfo = line.split("\t");
                     if (!orderInfo[0].equals("contract_num")) {
@@ -290,7 +291,7 @@ public class importController {
         String[] clientInfo;
         Date delDate, lodDate;
         try (PreparedStatement updateOrder = con.prepareStatement(sql); BufferedReader infile
-                = new BufferedReader(new FileReader("update_final_test.tsv"))) {
+                = new BufferedReader(new FileReader("D:/CS307_Proj/cs307/src/main/java/file/final_update.tsv"))) {
             while ((line = infile.readLine()) != null) {
                 updateInfo = line.split("\t");
                 conId = updateInfo[0];
@@ -350,7 +351,7 @@ public class importController {
         int[] stockInfo;
 
         try (BufferedReader infile
-                     = new BufferedReader(new FileReader("delete_final.tsv"))) {
+                     = new BufferedReader(new FileReader("D:/CS307_Proj/cs307/src/main/java/file/final_delete.tsv"))) {
             while ((line = infile.readLine()) != null) {
                 testInfo = line.split("\t");
                 if (testInfo[0].equals("contract")) {

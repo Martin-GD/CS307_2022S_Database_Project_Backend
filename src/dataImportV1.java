@@ -11,8 +11,8 @@ public class dataImportV1 {
     protected Connection con = null;
 
     private String host = "localhost";
-    private String dbname = "project2";
-    private String user = "test";
+    private String dbname = "CS307Proj2";
+    private String user = "checker";
     private String pwd = "123456";
     private String port = "5432";
 

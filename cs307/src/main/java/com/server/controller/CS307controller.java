@@ -10,8 +10,10 @@ import java.util.ArrayList;
 
 @RestController
 public class CS307controller {
-//    databaseController db = new databaseController();
-    private Connection con = null;
+    database db = new database();
+    private Connection con = db.getCon();
+
+
 
     private ResultSet resultSet;
     private static PreparedStatement AllStaffCount = null;
@@ -67,7 +69,7 @@ public class CS307controller {
 
     @RequestMapping("/getAllStaffCount")
     public StaffCount[] getAllStaffCount() {
-        openDB();
+//        openDB();
         ArrayList<StaffCount> ans = new ArrayList<>();
 
         try {
@@ -87,7 +89,7 @@ public class CS307controller {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        closeDB();
+//        closeDB();
         StaffCount[] arr = new StaffCount[ans.size()];
         for (int i = 0; i < ans.size(); i++) {
             arr[i] = ans.get(i);
@@ -97,7 +99,7 @@ public class CS307controller {
 
     @RequestMapping("/getContractCount")
     public String getContractCount() {
-        openDB();
+//        openDB();
         StringBuilder sb = new StringBuilder();
         try {
             ContractCount = con.prepareStatement("select count(*) as number from contract ");
@@ -105,36 +107,36 @@ public class CS307controller {
             resultSet = ContractCount.executeQuery();
 
             while (resultSet.next()) {
-                sb.append(String.format("%-5s", resultSet.getString("number"))).append("\n");
+                sb.append(String.format("%-5s", resultSet.getString("number")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        closeDB();
+//        closeDB();
         return sb.toString();
     }
 
     @RequestMapping("/getOrderCount")
     public String getOrderCount() {
-        openDB();
+//        openDB();
         StringBuilder sb = new StringBuilder();
         try {
             OrderCount = con.prepareStatement("select count(*) as number from orders");
             resultSet = OrderCount.executeQuery();
 
             while (resultSet.next()) {
-                sb.append(String.format("%-5s", resultSet.getString("number"))).append("<br />");
+                sb.append(String.format("%-5s", resultSet.getString("number")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        closeDB();
+//        closeDB();
         return sb.toString();
     }
 
     @RequestMapping("/getNeverSoldProductCount")
     public String getNeverSoldProductCount() {
-        openDB();
+//        openDB();
         StringBuilder sb = new StringBuilder();
         try {
             NeverSoldProductCount = con.prepareStatement("select count(model_id) as number " +
@@ -147,18 +149,18 @@ public class CS307controller {
             resultSet = NeverSoldProductCount.executeQuery();
 
             while (resultSet.next()) {
-                sb.append(String.format("%-5s", resultSet.getString("number"))).append("<br />");
+                sb.append(String.format("%-5s", resultSet.getString("number")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        closeDB();
+//        closeDB();
         return sb.toString();
     }
 
     @RequestMapping("/getFavoriteProductModel")
     public FavoriteProductModelE[] getFavoriteProductModel() {
-        openDB();
+//        openDB();
 
         ArrayList<FavoriteProductModelE> ans = new ArrayList<>();
         try {
@@ -177,7 +179,7 @@ public class CS307controller {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        closeDB();
+//        closeDB();
         FavoriteProductModelE[] arr = new FavoriteProductModelE[ans.size()];
         for (int i = 0; i < ans.size(); i++) {
             arr[i] = ans.get(i);
@@ -187,7 +189,7 @@ public class CS307controller {
 
     @RequestMapping("/getAvgStockByCenter")
     public AvgStockByCenterE[] getAvgStockByCenter() {
-        openDB();
+//        openDB();
         ArrayList<AvgStockByCenterE> ans = new ArrayList<>();
 
         try {
@@ -204,14 +206,14 @@ public class CS307controller {
 
             while (resultSet.next()) {
                 AvgStockByCenterE t = new AvgStockByCenterE();
-                t.setAvgStockByCenterE(resultSet.getString("supply_center"),resultSet.getInt("average"));
+                t.setAvgStockByCenterE(resultSet.getString("supply_center"),resultSet.getDouble("average"));
                 ans.add(t);
 
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        closeDB();
+//        closeDB();
         AvgStockByCenterE[] arr = new AvgStockByCenterE[ans.size()];
         for (int i = 0; i < ans.size(); i++) {
             arr[i] = ans.get(i);
@@ -219,10 +221,11 @@ public class CS307controller {
         return arr;
     }
 
-    @RequestMapping("/getProductByNumber?product_number=need_number")
-    public String getProductByNumber(String product_number) {
+    @RequestMapping("/getProductByNumber")
+    public ProductByNumberE[] getProductByNumber(String product_number) {
         openDB();
-        StringBuilder sb = new StringBuilder();
+        ArrayList<ProductByNumberE> ans = new ArrayList<>();
+
         try {
             ProductByNumber = con.prepareStatement("select distinct supply_center,code as product_name, " +
                     "model_name,purchase_price ,tot_quantity " +
@@ -232,20 +235,27 @@ public class CS307controller {
                     "where code = ? ");
             ProductByNumber.setString(1,product_number);
             resultSet = ProductByNumber.executeQuery();
-            sb.append(String.format("%-50s  %-20s  %-50s  %-15s  %-15s", "supply_center",
-                    "product_name","model_name","purchase_prise","quantity")).append("<br />");
+
             while (resultSet.next()) {
-                sb.append(String.format("%-50s  %-20s  %-50s  %-15s  %-15s", resultSet.getString("supply_center"),
+                ProductByNumberE t = new ProductByNumberE();
+                t.setProductByNumberE(resultSet.getString("supply_center"),
                         resultSet.getString("product_name"),
                         resultSet.getString("model_name"),
-                        resultSet.getString("purchase_price"),
-                        resultSet.getInt("tot_quantity"))).append("<br />");
+                        resultSet.getInt("purchase_price"),
+                        resultSet.getInt("tot_quantity"));
+                ans.add(t);
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return new ProductByNumberE[0];
         }
         closeDB();
-        return sb.toString();
+        ProductByNumberE[] arr = new ProductByNumberE[ans.size()];
+        for (int i = 0; i < ans.size(); i++) {
+            arr[i] = ans.get(i);
+        }
+        return arr;
     }
 
     @RequestMapping("/getContractInfo")
@@ -254,7 +264,7 @@ public class CS307controller {
         Object[] arr = new Object[2];
         ContractInfo1 arr0 = new ContractInfo1();
         ArrayList<ContractInfo2> ans = new ArrayList<>();
-        StringBuilder sb = new StringBuilder();
+
         try {
             ContractInfo = con.prepareStatement("select contract_id,staff_name,c_name,supply_center from contract " +
                     "left join (select c_name, client_id as c_id , sustc_id from client) c on c_id = contract.client_id " +
@@ -266,7 +276,9 @@ public class CS307controller {
             resultSet.next();
             arr0.setContractInfo1(resultSet.getString("contract_id"),resultSet.getString("staff_name")
                     ,resultSet.getString("c_name"),resultSet.getString("supply_center"));
-            arr[0]=arr0;
+            ContractInfo1[] need1 = new ContractInfo1[1];
+            need1[0] = arr0;
+            arr[0]=need1;
 
             OrderInfo = con.prepareStatement("select model_name,staff_name,quantity,price,delivery_date,lodgement_date from orders " +
                     "left join (select model_id p_id, model_name, price from product)p on orders.model_id = p_id " +
@@ -284,6 +296,8 @@ public class CS307controller {
                         resultSet.getInt("price"),
                         resultSet.getString("delivery_date"),
                         resultSet.getString("lodgement_date"));
+                ans.add(t);
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -292,10 +306,12 @@ public class CS307controller {
         ContractInfo2[] arr1 = new ContractInfo2[ans.size()];
         for (int i = 0; i < ans.size(); i++) {
             arr1[i] = ans.get(i);
+
         }
         arr[1] = arr1;
         return arr;
     }
+
 
     @RequestMapping("/truncateAll")
     public String truncateAll(){
@@ -314,4 +330,54 @@ public class CS307controller {
     }
 
 
+}
+
+class database{
+    private Connection con = null;
+    private String host = "localhost";
+    private String dbname = "CS307Proj2";
+    private String user = "checker";
+    private String pwd = "123456";
+    private String port = "5432";
+
+    public database(){
+        openDB();
+    }
+
+    public void openDB() {
+        try {
+            Class.forName("org.postgresql.Driver");
+
+        } catch (Exception e) {
+            System.err.println("Cannot find the PostgreSQL driver. Check CLASSPATH.");
+            System.exit(1);
+        }
+        try {
+            String url = "jdbc:postgresql://" + host + ":" + port + "/" + dbname;
+            con = DriverManager.getConnection(url, user, pwd);
+
+        } catch (SQLException e) {
+            System.err.println("Database connection failed");
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
+        return;
+    }
+
+
+    public void closeDB() {
+        if (con != null) {
+            try {
+
+                con.close();
+                con = null;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public Connection getCon(){
+        return this.con;
+    }
 }

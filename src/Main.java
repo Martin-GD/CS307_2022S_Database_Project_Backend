@@ -10,7 +10,7 @@ public class Main {
 //        imp.impEnterprise();
 //        imp.impModel();
 //        imp.impStaff();
-
+//
 //        imp.setStockIn();
 //        imp.placeOrder();
 //        imp.updateOrder();
@@ -23,11 +23,13 @@ public class Main {
 //        System.out.println(dm.getNeverSoldProductCount());
 //        System.out.println(dm.getFavoriteProductModel());
 //        System.out.println(dm.getAvgStockByCenter());
+        System.out.println(dm.getProductByNumber("A50L172"));
+        System.out.println(dm.getContractInfo("CSE0000106"));
 //for implementing bill_2022:
-        for (int i = 1; i <13 ; i++) {
-            imp.getMonthlyIncome(i);
-            System.out.println(dm.getMonthlyAll(i));
-        }
+//        for (int i = 1; i <13 ; i++) {
+//            imp.getMonthlyIncome(i);
+//            System.out.println(dm.getMonthlyAll(i));
+//        }
         dm.closeDB();
     }
 }
