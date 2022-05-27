@@ -22,6 +22,11 @@ public class importController {
             impEnterprise();
             impStaff();
             impModel();
+            setStockIn();
+            placeOrder();
+            updateOrder();
+            deleteOrder();
+            getAllMonthBill();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             return "fail!";
