@@ -64,6 +64,7 @@ public class userManagement {
             stmt.setString(2, role_name);
             stmt.setString(3, role_name);
             stmt.execute();
+            grantUsages(role_name);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }

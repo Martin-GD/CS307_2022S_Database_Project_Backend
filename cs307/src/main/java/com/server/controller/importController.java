@@ -15,6 +15,19 @@ public class importController {
 //    databaseController db = new databaseController();
     database db = new database();
 
+    @RequestMapping("/impBasic")
+    public String impBasic(){
+        try{
+            impCenter();
+            impEnterprise();
+            impStaff();
+            impModel();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return "fail!";
+        }
+        return "success!";
+    }
 
     @RequestMapping("/impCenter")
     public String impCenter() throws SQLException {

@@ -28,15 +28,117 @@ public class CS307controller {
     private static PreparedStatement OrderInfo = null;
     private static PreparedStatement MonthBill = null;
 
-    private String host = "localhost";
-    private String dbname = "CS307Proj2";
-    private String user = "checker";
-    private String pwd = "123456";
-    private String port = "5432";
-
     public CS307controller() throws SQLException {
     }
 
+    @RequestMapping("/changeToManager")
+    public String changeToManager(String password){
+        try{
+            db.changeConnectionToManager(password);
+        }catch (Exception e){
+            return "fail!";
+        }
+        return "success!";
+    }
+    @RequestMapping("/changeBack")
+    public String changeBack(String password){
+        try{
+            db.changeConnectionBack(password);
+        }catch (Exception e){
+            return "fail!";
+        }
+        return "success!";
+    }
+
+    @RequestMapping("/createRole")
+    public String createRole(String role_name){
+        try{
+            db.createRole(role_name);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return "fail!";
+        }
+        return "success!";
+    }
+
+
+    @RequestMapping("/OrderSelect")
+    public OrdersE[] OrderSelect(String contract_id, String model_id, String salesman_id) throws SQLException {
+        Connection con = db.getCon();
+        ArrayList<OrdersE> ans = new ArrayList<>();
+        boolean temp = false;
+        try{
+            String sql = "select order_id, contract_id,model_id,quantity,salesman_id,delivery_date,lodgement_date,contract_type from orders where ";
+            if (!contract_id.equals("")){
+                sql +=("contract_id = "+"? ");
+                temp = true;
+            }
+            if (temp&& !model_id.equals("")){
+                sql += " and ";
+                temp = false;
+            }
+            if (!model_id.equals("")){
+                sql +=("model_id = "+"? ");
+                temp = true;
+            }
+            if (temp&&!salesman_id.equals("")){
+                sql += " and ";
+                temp = false;
+            }
+            if (!salesman_id.equals("")){
+                sql +=("salesman_id = "+"? ");
+                temp = true;
+            }
+//            System.out.println(sql);
+            PreparedStatement t = con.prepareStatement(sql);
+            if (!contract_id.equals("")){
+                t.setString(1,contract_id);
+            }
+            if (!model_id.equals("")){
+                if (!contract_id.equals(""))
+                    t.setString(2,model_id);
+                else
+                    t.setString(1,model_id);
+            }
+            if (!salesman_id.equals("")){
+                if (!contract_id.equals("")){
+                    if (!model_id.equals(""))
+                        t.setString(3,salesman_id);
+                    else t.setString(2,salesman_id);
+                }else {
+                    if (!model_id.equals(""))
+                        t.setString(2,salesman_id);
+                    else t.setString(1,salesman_id);
+                }
+            }
+
+            resultSet = t.executeQuery();
+            while (resultSet.next()){
+                OrdersE a = new OrdersE();
+                a.setOrdersE(resultSet.getInt("order_id"),
+                        resultSet.getString("contract_id"),
+                        resultSet.getString("model_id"),
+                        resultSet.getString("quantity"),
+                        resultSet.getString("salesman_id"),
+                        resultSet.getString("delivery_date"),
+                        resultSet.getString("lodgement_date"),
+                        resultSet.getString("contract_type")
+                        );
+                ans.add(a);
+            }
+
+
+        }catch (Exception e){
+
+        } finally {
+            con.close();
+        }
+        OrdersE[] arr = new OrdersE[ans.size()];
+        for (int i = 0; i < ans.size(); i++) {
+            arr[i] = ans.get(i);
+        }
+        return arr;
+    }
 
     @RequestMapping("/getAllStaffCount")
     public StaffCount[] getAllStaffCount() throws SQLException {
@@ -329,10 +431,10 @@ public class CS307controller {
 
             } catch (SQLException e) {
                 e.printStackTrace();
-            } finally {
-                con.close();
             }
         }
+
+        con.close();
 
         return arr;
     }
@@ -404,6 +506,67 @@ class database{
         dbPool.setInitialPoolSize(8);
         dbPool.setMaxPoolSize(12);
     }
+
+    public void changeConnectionToManager(String password) {
+        //pwd=password_m
+        this.user = "manager";
+        this.pwd = password;
+        dbPool.close();
+        dbPool = new ComboPooledDataSource();
+        openDB();
+    }
+
+    public void changeConnectionBack(String password) {
+        //pwd=123456
+        user = "test";
+        pwd = password;
+        dbPool.close();
+        dbPool = new ComboPooledDataSource();
+        openDB();
+    }
+
+    public void createRole(String role_name) throws SQLException {
+        //do block for creating roles do not exist
+        Connection con = dbPool.getConnection();
+
+        String sql="DO " +
+                "                $do$ " +
+                "                BEGIN " +
+                "                   IF EXISTS ( " +
+                "                      SELECT FROM pg_catalog.pg_roles " +
+                "                      WHERE  rolname = ";
+        sql+="'"+role_name;
+        sql+="')then ELSE create role \""+role_name+"\"; end if; end $do$;";
+        try {
+
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.execute();
+            grantUsages(role_name);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    //一定要在test user下切换成staff不然会查不到
+    public void grantUsages(String userName) throws SQLException {
+        Connection con = dbPool.getConnection();
+
+        String sqlGrant = "grant normal_staffs to ";
+        String sql = "set role = ";
+        try {
+            sql+="\""+userName+"\"";
+            PreparedStatement stmt = con.prepareStatement(sql);
+            sqlGrant+="\""+userName+"\"";
+            PreparedStatement stmtGrant = con.prepareStatement(sqlGrant);
+            stmtGrant.execute();
+            stmt.execute();
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+    }
+
 
 
     public Connection getCon() throws SQLException {
