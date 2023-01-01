@@ -58,7 +58,7 @@ All of them read input from given csv files and operate on legal data which can 
 
 used to modify database.
 
-![1672565327815](picture\1672565327815.png)
+![1672565327815](\picture\1672565327815.png)
 
 ### **1.3 APIs for getting statistical information** 
 
@@ -124,7 +124,7 @@ For all APIs with output，we are allowed to get the result with a button and di
 
 table. See an example below.
 
-![1672565366807](C:\Users\gmd\Desktop\往期课程\数据库\project2\picture\1672565366807.png)
+![1672565366807](\picture\1672565366807.png)
 
 ## **2 Advanced Part** 
 
@@ -134,7 +134,7 @@ Our front page has an orderSelect window for users to query freely which allows 
 
 tiple input parameters.
 
-![1672565377247](C:\Users\gmd\Desktop\往期课程\数据库\project2\picture\1672565377247.png)
+![1672565377247](\picture\1672565377247.png)
 
 ### **2.2 Design the Bill Module** 
 
@@ -144,7 +144,7 @@ table is shown as below, including some columns with the highest sales informati
 
 ferent aspects.
 
-![1672565386000](C:\Users\gmd\Desktop\往期课程\数据库\project2\picture\1672565386000.png)
+![1672565386000](\picture\1672565386000.png)
 
 ### **2.3 Database Connection Pool** 
 
@@ -152,7 +152,7 @@ We have added 8 basic connections to the connection pool, with a maximum of 12
 
 connections. And you can view the usage of the connection pool on the back end. 
 
-![1672565393969](C:\Users\gmd\Desktop\往期课程\数据库\project2\picture\1672565393969.png)
+![1672565393969](\picture\1672565393969.png)
 
 ### **2.4 Update Order Type According to Time** 
 
@@ -160,13 +160,13 @@ A function and a trigger is created to judge if the inserted or updated order is
 
 passed lodgement date. If it is, then straightly change its type to ”Finished”. 
 
-![1672565403247](C:\Users\gmd\Desktop\往期课程\数据库\project2\picture\1672565403247.png)
+![1672565403247](\picture\1672565403247.png)
 
 ### **2.5 GUI Design** 
 
 Vue framework is used for front-end design.
 
-![1672565411243](C:\Users\gmd\Desktop\往期课程\数据库\project2\picture\1672565411243.png)
+![1672565411243](\picture\1672565411243.png)
 
 ### **2.6 Back-end Server** 
 
@@ -180,7 +180,7 @@ Based on websocket communication, we have realized accessing our web pages in th
 
 LAN of campus network which allows multiple hosts to visit at the same time. 
 
-![1672565418411](C:\Users\gmd\Desktop\往期课程\数据库\project2\picture\1672565418411.png)
+![1672565418411](\picture\1672565418411.png)
 
 ### **2.7 User Privileges** 
 
@@ -192,7 +192,7 @@ will be displayed due to different permissions. Staffs are only allowed to chang
 
 related to themselves by enabling row level security on tables. 
 
-![1672565426657](C:\Users\gmd\Desktop\往期课程\数据库\project2\picture\1672565426657.png)
+![1672565426657](\picture\1672565426657.png)
 
 ### **2.8 Index** 
 
