@@ -58,7 +58,7 @@ All of them read input from given csv files and operate on legal data which can 
 
 used to modify database.
 
-![1672565327815](C:\Users\gmd\Desktop\往期课程\数据库\project2\picture\1672565327815.png)
+![1672565327815](picture\1672565327815.png)
 
 ### **1.3 APIs for getting statistical information** 
 
